@@ -124,7 +124,7 @@ void inicializar_juego(juego_t* juego, char tipo_personaje);
 void inicializar_matriz (char matriz[MAX_FILAS][MAX_COLUMNAS]);
 void inicializar_personaje(juego_t* juego, char matriz[MAX_FILAS][MAX_COLUMNAS], char tipo_personaje);
 void inicializar_chloe (juego_t* juego, char matriz[MAX_FILAS][MAX_COLUMNAS]);
-bool esta_posicion_ocupada(char matriz[MAX_FILAS][MAX_COLUMNAS], coordenada_t posicion);
+bool esta_posicion_libre(char matriz[MAX_FILAS][MAX_COLUMNAS], coordenada_t posicion);
 void inicializar_obstaculos (juego_t* juego, char matriz[MAX_FILAS][MAX_COLUMNAS], int cantidad, char tipo);
 void inicializar_recolectables (juego_t* juego, char matriz[MAX_FILAS][MAX_COLUMNAS], int cantidad, char tipo);
 
@@ -138,11 +138,23 @@ void mostrar_juego(juego_t juego);
 void pedir_jugada(char* jugada);
 bool es_jugada_valida (char jugada);
 void realizar_jugada(juego_t* juego, char jugada);
-bool se_puede_mover(coordenada_t posicion, char movimiento);
+bool se_puede_mover(coordenada_t posicion);
 void cargar_posiciones (char tablero[MAX_FILAS][MAX_COLUMNAS], juego_t juego);
 
 int estado_juego(juego_t juego);
 bool chloe_fue_encontrada (juego_t juego);
+
+
+void eliminar_elemento (juego_t* juego, int indice, char tipo_elemento);
+void eliminar_obstaculo(elemento_del_mapa_t obstaculos[MAX_OBSTACULOS], int* cantidad_obstaculos,int indice);
+void eliminar_herramienta(elemento_del_mapa_t herramientas[MAX_HERRAMIENTAS], int* cantidad_herramientas,int indice);
+
+int indice_elemento (juego_t juego, coordenada_t posicion, char tipo_elemento);
+int indice_obstaculo (juego_t juego, coordenada_t posicion);
+int indice_herramienta (juego_t juego, coordenada_t posicion);
+
+bool es_obstaculo (char tipo_elemento);
+bool es_herramienta (char tipo_elemento);
 
 
 
@@ -268,12 +280,12 @@ void inicializar_chloe (juego_t* juego, char matriz[MAX_FILAS][MAX_COLUMNAS]){
 	do{ 
 		juego->amiga_chloe = posicion_aleatoria();
 
-	}  while (!esta_posicion_ocupada(matriz, juego->amiga_chloe));
+	}  while (!esta_posicion_libre(matriz, juego->amiga_chloe));
 
 	matriz[juego->amiga_chloe.fil][juego->amiga_chloe.col] = CHLOE;
 }
 
-bool esta_posicion_ocupada(char matriz[MAX_FILAS][MAX_COLUMNAS], coordenada_t posicion){
+bool esta_posicion_libre(char matriz[MAX_FILAS][MAX_COLUMNAS], coordenada_t posicion){
 	return (matriz[posicion.fil][posicion.col] == VACIO);
 }
 
@@ -286,7 +298,7 @@ void inicializar_obstaculos (juego_t* juego, char matriz[MAX_FILAS][MAX_COLUMNAS
 
 		do {
 			juego->obstaculos[i].posicion = posicion_aleatoria();
-		} while(!esta_posicion_ocupada(matriz, juego->obstaculos[i].posicion) );
+		} while(!esta_posicion_libre(matriz, juego->obstaculos[i].posicion) );
 
 		matriz[juego->obstaculos[i].posicion.fil][juego->obstaculos[i].posicion.col] = tipo;
 		juego->cantidad_obstaculos++;
@@ -302,7 +314,7 @@ void inicializar_recolectables (juego_t* juego, char matriz[MAX_FILAS][MAX_COLUM
 
 		do {
 			juego->herramientas[i].posicion = posicion_aleatoria();
-		} while(!esta_posicion_ocupada(matriz, juego->herramientas[i].posicion) );
+		} while(!esta_posicion_libre(matriz, juego->herramientas[i].posicion) );
 
 		matriz[juego->herramientas[i].posicion.fil][juego->herramientas[i].posicion.col] = tipo;
 		juego->cantidad_herramientas++;
@@ -385,24 +397,51 @@ void pedir_jugada(char* jugada){
  * el int elemento_en_uso en -1.
  */
 void realizar_jugada(juego_t* juego, char jugada){
+	int indice_objeto_chocado = 0;
+
 	char matriz_temporal[MAX_FILAS][MAX_COLUMNAS];
-	coordenada_t posicion;
+	char elemento_chocado = '0';
+
+	coordenada_t posicion = juego->personaje.posicion;
 
 	inicializar_matriz(matriz_temporal);
 	cargar_posiciones(matriz_temporal, *juego);
 
 	switch (jugada){
 		case MOVERSE_ARRIBA:
-			if( (juego->personaje.posicion.fil -1 ) >=FILA_MINIMA ){
-				posicion.fil = juego->personaje.posicion.fil -1;
-				posicion.col = juego->personaje.posicion.col;
+			posicion.fil--;
+			if(se_puede_mover(posicion)){ 
 				
-				if(!esta_posicion_ocupada(matriz_temporal, posicion)){
-					juego->personaje.posicion.fil--;
+				if(esta_posicion_libre(matriz_temporal, posicion)){
+					juego->personaje.posicion = posicion;
 				}
 
 				else {
-					juego->personaje.posicion.fil--;
+					juego->personaje.posicion = posicion;
+					elemento_chocado = matriz_temporal[posicion.fil][posicion.col];
+					indice_objeto_chocado = indice_elemento(*juego, posicion, elemento_chocado);
+					eliminar_elemento(juego, indice_objeto_chocado,elemento_chocado);
+					
+				}
+
+
+			} else {
+				printf("Movimiento no posible");
+			}
+			break;
+		case MOVERSE_ABAJO:
+			posicion.fil++;
+			if(se_puede_mover(posicion)){ 
+				
+				if(esta_posicion_libre(matriz_temporal, posicion)){
+					juego->personaje.posicion = posicion;
+				}
+
+				else {
+					juego->personaje.posicion = posicion;
+					elemento_chocado = matriz_temporal[posicion.fil][posicion.col];
+					indice_objeto_chocado = indice_elemento(*juego, posicion, elemento_chocado);
+					eliminar_elemento(juego, indice_objeto_chocado,elemento_chocado);
 					
 				}
 
@@ -412,17 +451,19 @@ void realizar_jugada(juego_t* juego, char jugada){
 			}
 			break;
 
-		case MOVERSE_ABAJO:
-			if( (juego->personaje.posicion.fil + 1 ) < MAX_FILAS ){
-				posicion.fil = juego->personaje.posicion.fil +1;
-				posicion.col = juego->personaje.posicion.col;
+		case MOVERSE_IZQUIERDA:
+			posicion.col--;
+			if(se_puede_mover(posicion)){ 
 				
-				if(!esta_posicion_ocupada(matriz_temporal, posicion)){
-					juego->personaje.posicion.fil++;
+				if(esta_posicion_libre(matriz_temporal, posicion)){
+					juego->personaje.posicion = posicion;
 				}
 
 				else {
-					juego->personaje.posicion.fil++;
+					juego->personaje.posicion = posicion;
+					elemento_chocado = matriz_temporal[posicion.fil][posicion.col];
+					indice_objeto_chocado = indice_elemento(*juego, posicion, elemento_chocado);
+					eliminar_elemento(juego, indice_objeto_chocado,elemento_chocado);
 					
 				}
 
@@ -433,16 +474,18 @@ void realizar_jugada(juego_t* juego, char jugada){
 			break;
 
 		case MOVERSE_DERECHA:
-			if( (juego->personaje.posicion.col+1 ) <MAX_COLUMNAS ){
-				posicion.fil = juego->personaje.posicion.fil;
-				posicion.col = juego->personaje.posicion.col+1;
+			posicion.col++;
+			if(se_puede_mover(posicion)){ 
 				
-				if(!esta_posicion_ocupada(matriz_temporal, posicion)){
-					juego->personaje.posicion.col++;
+				if(esta_posicion_libre(matriz_temporal, posicion)){
+					juego->personaje.posicion = posicion;
 				}
 
 				else {
-					juego->personaje.posicion.col++;
+					juego->personaje.posicion = posicion;
+					elemento_chocado = matriz_temporal[posicion.fil][posicion.col];
+					indice_objeto_chocado = indice_elemento(*juego, posicion, elemento_chocado);
+					eliminar_elemento(juego, indice_objeto_chocado,elemento_chocado);
 					
 				}
 
@@ -451,26 +494,7 @@ void realizar_jugada(juego_t* juego, char jugada){
 				printf("Movimiento no posible");
 			}
 			break;
-			
-		case MOVERSE_IZQUIERDA:
-			if( (juego->personaje.posicion.col-1 ) >= COLUMNA_MINIMA ){
-				posicion.fil = juego->personaje.posicion.fil;
-				posicion.col = juego->personaje.posicion.col-1;
-				
-				if(!esta_posicion_ocupada(matriz_temporal, posicion)){
-					juego->personaje.posicion.col--;
-				}
 
-				else {
-					juego->personaje.posicion.col--;
-					
-				}
-
-
-			} else {
-				printf("Movimiento no posible");
-			}
-			break;
 
 		default:
 			break;
@@ -478,11 +502,85 @@ void realizar_jugada(juego_t* juego, char jugada){
 
 }
 
-bool se_puede_mover(coordenada_t posicion, char movimiento){
-	bool movimiento_valido = false;
-	
-	
+bool se_puede_mover(coordenada_t posicion){
+	return ( ( (posicion.fil >= FILA_MINIMA)&&(posicion.fil < MAX_FILAS) ) &&( (posicion.col >= COLUMNA_MINIMA)&&(posicion.col < MAX_COLUMNAS) ) );	
 }
+
+void eliminar_elemento (juego_t* juego, int indice, char tipo_elemento){
+	if ( es_obstaculo(tipo_elemento) ){
+		eliminar_obstaculo(juego->obstaculos,&(juego->cantidad_obstaculos), indice);
+
+	} else if ( es_herramienta (tipo_elemento) ){
+		eliminar_herramienta(juego->herramientas ,&(juego->cantidad_herramientas), indice);
+	}
+}
+
+void eliminar_obstaculo(elemento_del_mapa_t obstaculos[MAX_OBSTACULOS], int* cantidad_obstaculos,int indice){
+	int indice_ultimo_obstaculo = (*cantidad_obstaculos) -1;
+
+	obstaculos[indice] = obstaculos[indice_ultimo_obstaculo];
+	(*cantidad_obstaculos) --;
+}
+
+void eliminar_herramienta(elemento_del_mapa_t herramientas[MAX_HERRAMIENTAS], int* cantidad_herramientas,int indice){
+	int indice_ultima_herramienta = (*cantidad_herramientas) -1;
+
+	herramientas[indice] = herramientas[indice_ultima_herramienta];
+	(*cantidad_herramientas) --;
+}
+
+int indice_elemento (juego_t juego, coordenada_t posicion, char tipo_elemento){
+	int indice = 0;
+	int i = 0;
+
+
+	if (es_obstaculo(tipo_elemento)){
+
+		indice = indice_obstaculo(juego, posicion);
+
+	} else if (es_herramienta(tipo_elemento)){
+		indice = indice_herramienta(juego, posicion);
+	}
+
+	return indice;
+
+
+}
+
+int indice_obstaculo (juego_t juego, coordenada_t posicion){
+	int indice = 0;
+	int i;
+
+	for(i = 0; i < juego.cantidad_obstaculos; i++){
+		if ( (juego.obstaculos[i].posicion.fil == posicion.fil) && (juego.obstaculos[i].posicion.col == posicion.col) ){
+			indice = i;
+		}
+	}
+	return indice;
+}
+
+int indice_herramienta (juego_t juego, coordenada_t posicion){
+	int indice = 0;
+	int i;
+
+	for(i = 0; i < juego.cantidad_herramientas; i++){
+		if ( (juego.herramientas[i].posicion.fil == posicion.fil) && (juego.herramientas[i].posicion.col == posicion.col) ){
+			indice = i;
+		}
+	}	
+
+	return indice;
+}
+
+
+bool es_obstaculo (char tipo_elemento){
+	return ((tipo_elemento == PIEDRA) || (tipo_elemento==KOALAS) || (tipo_elemento ==ARBOL) );
+}
+
+bool es_herramienta (char tipo_elemento){
+	return ((tipo_elemento == PILA) || (tipo_elemento==VELA) || (tipo_elemento ==BENGALA) );
+}
+
 
 void cargar_posiciones (char tablero[MAX_FILAS][MAX_COLUMNAS], juego_t juego){
 
