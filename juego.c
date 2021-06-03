@@ -95,6 +95,7 @@ bool VISIBILIDAD_DEFECTO = false;
 
 const int SIN_ELEMENTOS_EN_USO = -1;
 const int NO_HAY_ELEMENTO = -1;
+const int MIN_MOVIMIENTOS = 0;
 
 #define MOVERSE_ARRIBA 'W'
 #define MOVERSE_IZQUIERDA 'A'
@@ -195,6 +196,7 @@ int obtener_posicion_mochila(elemento_mochila_t mochila[MAX_HERRAMIENTAS], char 
 bool hay_elemento_en_uso (personaje_t personaje);
 bool hay_bengala_activa (elemento_mochila_t mochila[MAX_HERRAMIENTAS], int cantidad_herramientas);
 
+void ocultar_todo (juego_t* juego);
 
 void mostrar_matriz(char matriz[MAX_FILAS][MAX_COLUMNAS]){
 	int i,j;
@@ -441,6 +443,7 @@ void pedir_jugada(char* jugada){
  */
 void realizar_jugada(juego_t* juego, char jugada){
 	int indice_objeto_chocado = 0;
+	int indice_en_uso = juego->personaje.elemento_en_uso;
 
 	char matriz_temporal[MAX_FILAS][MAX_COLUMNAS];
 	char elemento_chocado = '0';
@@ -454,7 +457,22 @@ void realizar_jugada(juego_t* juego, char jugada){
 		case MOVERSE_ARRIBA:
 			posicion.fil--;
 			if(se_puede_mover(posicion)){ 
-				
+
+				if (indice_en_uso != SIN_ELEMENTOS_EN_USO){
+
+					if((juego->personaje.mochila[indice_en_uso].movimientos_restantes >MIN_MOVIMIENTOS)){
+						ocultar_todo(juego);
+						iluminar_con(juego,jugada,juego->personaje.mochila[indice_en_uso].tipo);
+
+						juego->personaje.mochila[indice_en_uso].movimientos_restantes--;
+					} else{
+						ocultar_todo(juego);
+						juego->personaje.elemento_en_uso = SIN_ELEMENTOS_EN_USO;
+
+					}
+
+				}
+
 				if(esta_posicion_libre(matriz_temporal, posicion)){
 					juego->personaje.posicion = posicion;
 				}
@@ -475,7 +493,22 @@ void realizar_jugada(juego_t* juego, char jugada){
 			break;
 		case MOVERSE_ABAJO:
 			posicion.fil++;
-			if(se_puede_mover(posicion)){ 
+			if(se_puede_mover(posicion)){
+				if (indice_en_uso != SIN_ELEMENTOS_EN_USO){
+
+					if((juego->personaje.mochila[indice_en_uso].movimientos_restantes >MIN_MOVIMIENTOS)){
+						ocultar_todo(juego);
+						iluminar_con(juego,jugada,juego->personaje.mochila[indice_en_uso].tipo);
+
+						juego->personaje.mochila[indice_en_uso].movimientos_restantes--;
+					} else{
+						ocultar_todo(juego);
+						juego->personaje.elemento_en_uso = SIN_ELEMENTOS_EN_USO;
+
+					}
+
+				}
+
 				
 				if(esta_posicion_libre(matriz_temporal, posicion)){
 					juego->personaje.posicion = posicion;
@@ -499,6 +532,23 @@ void realizar_jugada(juego_t* juego, char jugada){
 		case MOVERSE_IZQUIERDA:
 			posicion.col--;
 			if(se_puede_mover(posicion)){ 
+
+				if (indice_en_uso != SIN_ELEMENTOS_EN_USO){
+
+				
+					if((juego->personaje.mochila[indice_en_uso].movimientos_restantes >MIN_MOVIMIENTOS)){
+						ocultar_todo(juego);
+						iluminar_con(juego,jugada,juego->personaje.mochila[indice_en_uso].tipo);
+
+						juego->personaje.mochila[indice_en_uso].movimientos_restantes--;
+					} else{
+						ocultar_todo(juego);
+						juego->personaje.elemento_en_uso = SIN_ELEMENTOS_EN_USO;
+
+					}
+
+				}
+
 				
 				if(esta_posicion_libre(matriz_temporal, posicion)){
 					juego->personaje.posicion = posicion;
@@ -522,6 +572,23 @@ void realizar_jugada(juego_t* juego, char jugada){
 		case MOVERSE_DERECHA:
 			posicion.col++;
 			if(se_puede_mover(posicion)){ 
+				if (indice_en_uso != SIN_ELEMENTOS_EN_USO){
+
+				
+					if((juego->personaje.mochila[indice_en_uso].movimientos_restantes >MIN_MOVIMIENTOS)){
+						ocultar_todo(juego);
+						iluminar_con(juego,jugada,juego->personaje.mochila[indice_en_uso].tipo);
+
+						juego->personaje.mochila[indice_en_uso].movimientos_restantes--;
+					} else{
+						ocultar_todo(juego);
+						juego->personaje.elemento_en_uso = SIN_ELEMENTOS_EN_USO;
+
+					}
+
+				}
+
+
 				
 				if(esta_posicion_libre(matriz_temporal, posicion)){
 					juego->personaje.posicion = posicion;
@@ -559,6 +626,22 @@ void realizar_jugada(juego_t* juego, char jugada){
 	
 }
 
+void ocultar_todo (juego_t* juego){
+	int i;
+
+	juego->chloe_visible = VISIBILIDAD_DEFECTO;
+
+	for (i = 0; i < juego->cantidad_obstaculos; i++){
+		juego->obstaculos[i].visible = VISIBILIDAD_DEFECTO;
+	
+	}
+	
+	for (i = 0; i < juego->cantidad_herramientas; i++){
+
+		juego->herramientas[i].visible = VISIBILIDAD_DEFECTO;
+
+	}
+}
 
 void encender_linterna(juego_t* juego, char ultimo_movimiento){
 	int indice = obtener_posicion_mochila(juego->personaje.mochila, LINTERNA);
@@ -672,8 +755,7 @@ void iluminar_hacia_izquierda(juego_t* juego){
 	for (i = 0; i < (juego->cantidad_obstaculos); i++){
 		posicion_elemento = juego->obstaculos[i].posicion;
 
-		bool esta_izquierda = esta_izquierda_de(posicion_personaje, posicion_elemento);
-		printf("%d ", esta_izquierda);
+
 
 		if (esta_izquierda_de(posicion_personaje, posicion_elemento )){
 			juego->obstaculos[i].visible = true;
@@ -684,9 +766,6 @@ void iluminar_hacia_izquierda(juego_t* juego){
 	
 	for (i = 0; i < (juego->cantidad_herramientas); i++){
 		posicion_elemento = juego->herramientas[i].posicion;
-
-		bool esta_izquierda = esta_izquierda_de(posicion_personaje, posicion_elemento);
-		printf("%d ", esta_izquierda);
 		
 		if (esta_izquierda_de(juego->personaje.posicion, posicion_elemento)){
 			juego->herramientas[i].visible = true;
