@@ -81,6 +81,8 @@ const int MOVIEMIENTOS_VELAS = 5;
 const int CANTIDAD_BENGALAS_FIESTA = 2;
 const int CANTIDAD_BENGALAS_NORMAL = 0;
 const int DURACION_BENGALAS = 3;
+const int MAX_RANGO_BENGALA = 2;
+const int KOALAS_POR_LINTERNA = 1;
 
 const char VACIO = '-';
 const int COLUMNA_INICIAL = 0;
@@ -191,13 +193,13 @@ bool esta_izquierda_de (coordenada_t posicion_personaje, coordenada_t posicion_e
 void iluminar_hacia_izquierda(juego_t* juego);
 bool esta_derecha_de (coordenada_t posicion_personaje, coordenada_t posicion_elegida);
 void iluminar_hacia_derecha(juego_t* juego);
-void iluminar_con (juego_t* juego, char ultimo_movimiento, char herramienta);
+void iluminar_con (juego_t* juego, char herramienta);
 int obtener_posicion_mochila(elemento_mochila_t mochila[MAX_HERRAMIENTAS], char elemento, int cantidad_herramientas);
 bool hay_elemento_en_uso (personaje_t personaje);
-bool hay_bengala_activa (elemento_mochila_t mochila[MAX_HERRAMIENTAS], int cantidad_herramientas);
-
+bool hay_bengala_activa (personaje_t personaje, int elemento_en_uso);
+void iluminar_con_bengala(juego_t* juego);
 bool es_herramienta_buscada( elemento_mochila_t elemento, char buscado);
-
+void encender_bengala(juego_t* juego);
 void encender_vela(juego_t* juego);
 bool esta_alrededor(coordenada_t posicion_personaje, coordenada_t posicion_elegida);
 void iluminar_alrededor(juego_t* juego);
@@ -288,7 +290,7 @@ void inicializar_juego(juego_t* juego, char tipo_personaje){
 	printf("Herramientas %i\n", juego->cantidad_herramientas);
 	printf("Cantidad Mochila %i\n", juego->personaje.cantidad_elementos);
 
-	mostrar_todas_posiciones(*juego);
+	//mostrar_todas_posiciones(*juego);
 
  
 }
@@ -492,7 +494,8 @@ bool es_jugada_valida (char jugada){
 }
 
 void pedir_jugada(char* jugada){
-	printf("Ingrese un carácter válido para realizar la jugada: ");
+	printf("Ingresa \n \t*-> W: Para moverte arriba.\n \t*-> A: Para moverte a la izquierda \n\t*-> S: Para moverte abajo. \n \t*-> D: Para moverte a la derecha. \n \t*-> L: Para encender una linterna. \n \t*-> V: Para encender una vela.  \n \t*-> E: Para encender la bengala. \n \t*-> T: Para ver el tiempo restante.  \n");
+  	printf("Ingrese un carácter válido para realizar la jugada: ");
 	scanf(" %c", jugada);
 
 	while(!es_jugada_valida(*jugada)){
@@ -553,9 +556,10 @@ void realizar_jugada(juego_t* juego, char jugada){
 
 					if((juego->personaje.mochila[indice_en_uso].movimientos_restantes >MIN_MOVIMIENTOS)){
 						ocultar_todo(juego);
-						iluminar_con(juego,jugada,juego->personaje.mochila[indice_en_uso].tipo);
+						iluminar_con(juego,juego->personaje.mochila[indice_en_uso].tipo);
 
 						juego->personaje.mochila[indice_en_uso].movimientos_restantes--;
+						printf("Movimientos restantes de %c : %i indice en uso: %i \n", juego->personaje.mochila[indice_en_uso].tipo, juego->personaje.mochila[indice_en_uso].movimientos_restantes, indice_en_uso );
 					} else{
 						ocultar_todo(juego);
 						juego->personaje.elemento_en_uso = SIN_ELEMENTOS_EN_USO;
@@ -573,21 +577,6 @@ void realizar_jugada(juego_t* juego, char jugada){
 		case MOVERSE_ABAJO:
 			posicion.fil++;
 			if(se_puede_mover(posicion)){
-				if (indice_en_uso != SIN_ELEMENTOS_EN_USO){
-
-					if((juego->personaje.mochila[indice_en_uso].movimientos_restantes >MIN_MOVIMIENTOS)){
-						ocultar_todo(juego);
-						iluminar_con(juego,jugada,juego->personaje.mochila[indice_en_uso].tipo);
-
-						juego->personaje.mochila[indice_en_uso].movimientos_restantes--;
-					} else{
-						ocultar_todo(juego);
-						juego->personaje.elemento_en_uso = SIN_ELEMENTOS_EN_USO;
-
-					}
-
-				}
-
 				
 				if(esta_posicion_libre(*juego, posicion)){
 					juego->personaje.posicion = posicion;
@@ -600,35 +589,36 @@ void realizar_jugada(juego_t* juego, char jugada){
 					eliminar_elemento(juego, indice_objeto_chocado,elemento_chocado);
 					
 				}
+				if (indice_en_uso != SIN_ELEMENTOS_EN_USO){
+
+					if((juego->personaje.mochila[indice_en_uso].movimientos_restantes >MIN_MOVIMIENTOS)){
+						ocultar_todo(juego);
+						iluminar_con(juego,juego->personaje.mochila[indice_en_uso].tipo);
+
+						juego->personaje.mochila[indice_en_uso].movimientos_restantes--;
+						printf("Movimientos restantes de %c : %i indice en uso: %i \n", juego->personaje.mochila[indice_en_uso].tipo, juego->personaje.mochila[indice_en_uso].movimientos_restantes, indice_en_uso );
+					} else{
+						ocultar_todo(juego);
+						juego->personaje.elemento_en_uso = SIN_ELEMENTOS_EN_USO;
+
+				}
+
+			}
 
 				juego->personaje.ultimo_movimiento = jugada;
 
 			} else {
 				printf("Movimiento no posible");
 			}
+
+
+
 			break;
 
 		case MOVERSE_IZQUIERDA:
 			posicion.col--;
 			if(se_puede_mover(posicion)){ 
 
-				if (indice_en_uso != SIN_ELEMENTOS_EN_USO){
-
-				
-					if((juego->personaje.mochila[indice_en_uso].movimientos_restantes >MIN_MOVIMIENTOS)){
-						ocultar_todo(juego);
-						iluminar_con(juego,jugada,juego->personaje.mochila[indice_en_uso].tipo);
-
-						juego->personaje.mochila[indice_en_uso].movimientos_restantes--;
-					} else{
-						ocultar_todo(juego);
-						juego->personaje.elemento_en_uso = SIN_ELEMENTOS_EN_USO;
-
-					}
-
-				}
-
-				
 				if(esta_posicion_libre(*juego, posicion)){
 					juego->personaje.posicion = posicion;
 				}
@@ -639,6 +629,23 @@ void realizar_jugada(juego_t* juego, char jugada){
 					indice_objeto_chocado = indice_elemento(*juego, posicion, elemento_chocado);
 					eliminar_elemento(juego, indice_objeto_chocado,elemento_chocado);
 					
+				}
+
+				if (indice_en_uso != SIN_ELEMENTOS_EN_USO){
+
+				
+					if((juego->personaje.mochila[indice_en_uso].movimientos_restantes >MIN_MOVIMIENTOS)){
+						ocultar_todo(juego);
+						iluminar_con(juego,juego->personaje.mochila[indice_en_uso].tipo);
+
+						juego->personaje.mochila[indice_en_uso].movimientos_restantes--;
+						printf("Movimientos restantes de %c : %i indice en uso: %i \n", juego->personaje.mochila[indice_en_uso].tipo, juego->personaje.mochila[indice_en_uso].movimientos_restantes, indice_en_uso );
+					} else{
+						ocultar_todo(juego);
+						juego->personaje.elemento_en_uso = SIN_ELEMENTOS_EN_USO;
+
+					}
+
 				}
 
 				juego->personaje.ultimo_movimiento = jugada;
@@ -651,23 +658,6 @@ void realizar_jugada(juego_t* juego, char jugada){
 		case MOVERSE_DERECHA:
 			posicion.col++;
 			if(se_puede_mover(posicion)){ 
-				if (indice_en_uso != SIN_ELEMENTOS_EN_USO){
-
-				
-					if((juego->personaje.mochila[indice_en_uso].movimientos_restantes >MIN_MOVIMIENTOS)){
-						ocultar_todo(juego);
-						iluminar_con(juego,jugada,juego->personaje.mochila[indice_en_uso].tipo);
-
-						juego->personaje.mochila[indice_en_uso].movimientos_restantes--;
-					} else{
-						ocultar_todo(juego);
-						juego->personaje.elemento_en_uso = SIN_ELEMENTOS_EN_USO;
-
-					}
-
-				}
-
-
 				
 				if(esta_posicion_libre(*juego, posicion)){
 					juego->personaje.posicion = posicion;
@@ -683,14 +673,27 @@ void realizar_jugada(juego_t* juego, char jugada){
 
 				juego->personaje.ultimo_movimiento = jugada;
 
+				if (indice_en_uso != SIN_ELEMENTOS_EN_USO){
+
+					if((juego->personaje.mochila[indice_en_uso].movimientos_restantes >MIN_MOVIMIENTOS)){
+						ocultar_todo(juego);
+						iluminar_con(juego,juego->personaje.mochila[indice_en_uso].tipo);
+
+						juego->personaje.mochila[indice_en_uso].movimientos_restantes--;
+						printf("Movimientos restantes de %c : %i indice en uso: %i \n", juego->personaje.mochila[indice_en_uso].tipo, juego->personaje.mochila[indice_en_uso].movimientos_restantes, indice_en_uso );
+					} else{
+						ocultar_todo(juego);
+						juego->personaje.elemento_en_uso = SIN_ELEMENTOS_EN_USO;
+					}
+				}
 			} else {
 				printf("Movimiento no posible");
 			}
 			break;
 		case ENCENDER_LINTERNA:
-			if (!hay_bengala_activa(juego->personaje.mochila, juego->cantidad_herramientas)){
+			if (!hay_bengala_activa(juego->personaje, juego->personaje.elemento_en_uso)){
 				if( !hay_elemento_en_uso((juego->personaje)) ){
-
+					inicializar_obstaculos(juego, KOALAS_POR_LINTERNA ,KOALAS);
 					encender_linterna(juego, juego->personaje.ultimo_movimiento);
 				}	
 			}
@@ -698,10 +701,20 @@ void realizar_jugada(juego_t* juego, char jugada){
 
 		case ENCENDER_VELA:
 
-			if (!hay_bengala_activa(juego->personaje.mochila, juego->cantidad_herramientas)){
+			if (!hay_bengala_activa(juego->personaje, juego->personaje.elemento_en_uso)){
 				if( !hay_elemento_en_uso((juego->personaje)) ){
 
 					encender_vela(juego);
+				}	
+			}
+			break;
+
+		case ENCENDER_BENGALA:
+
+			if (!hay_bengala_activa(juego->personaje, juego->personaje.elemento_en_uso)){
+				if( !hay_elemento_en_uso((juego->personaje)) ){
+
+					encender_bengala(juego);
 				}	
 			}
 			break;
@@ -718,7 +731,7 @@ void encender_vela(juego_t* juego){
 	if (indice == NO_HAY_ELEMENTO){
 		printf("No tienes velas");
 	} else {
-		iluminar_con(juego,juego->personaje.ultimo_movimiento,VELA);
+		iluminar_con(juego,VELA);
 		juego->personaje.elemento_en_uso = indice;	
 	}
 }
@@ -773,9 +786,13 @@ void iluminar_alrededor(juego_t* juego){
 	}
 }
 
-void iluminar_con (juego_t* juego, char ultimo_movimiento, char herramienta){
+void iluminar_con (juego_t* juego, char herramienta){
+	char direccion = '0';
+
 	if(herramienta == LINTERNA){
-		switch(ultimo_movimiento){
+		direccion = juego->personaje.ultimo_movimiento;
+
+		switch(direccion){
 			case MOVERSE_ARRIBA:
 		
 				iluminar_hacia_arriba(juego);
@@ -802,10 +819,41 @@ void iluminar_con (juego_t* juego, char ultimo_movimiento, char herramienta){
 				iluminar_hacia_derecha(juego);
 				break;
 		}
+
 	} else if (herramienta == VELA){
 		iluminar_alrededor(juego);
+	} else {
+		iluminar_con_bengala(juego);
 	}
 }
+
+void iluminar_con_bengala(juego_t* juego){
+	coordenada_t posicion_bengala;
+	int i;
+
+	posicion_bengala = posicion_aleatoria();
+
+	if (distancia_mahattan( posicion_bengala, juego->amiga_chloe ) <= MAX_RANGO_BENGALA){
+		juego->chloe_visible = true;
+	}
+	for (i = 0; i < juego->cantidad_obstaculos; i++){
+		if (distancia_mahattan(posicion_bengala, juego->obstaculos[i].posicion ) <= MAX_RANGO_BENGALA){
+			juego->obstaculos[i].visible = true;
+			//printf("Se ilumina fil: %i y col: %i\n",juego->obstaculos[i].posicion.fil, juego-> obstaculos[i].posicion.col);
+		}
+	
+	}
+	
+	for (i = 0; i < juego->cantidad_herramientas; i++){
+		if (distancia_mahattan(posicion_bengala, juego->herramientas[i].posicion ) <=MAX_RANGO_BENGALA){
+			juego->herramientas[i].visible = true;
+			//printf("Se ilumina fil: %i y col: %i\n",juego->herramientas[i].posicion.fil, juego-> herramientas[i].posicion.col);
+		}
+	
+	}
+
+}
+
 void ocultar_todo (juego_t* juego){
 	int i;
 
@@ -823,6 +871,17 @@ void ocultar_todo (juego_t* juego){
 	}
 }
 
+void encender_bengala(juego_t* juego){
+	int indice = obtener_posicion_mochila(juego->personaje.mochila, BENGALA, juego->personaje.cantidad_elementos);
+
+	if (indice == NO_HAY_ELEMENTO){
+		printf("ERROR! Sin bengalas!\n");
+	} else{
+		iluminar_con(juego,BENGALA);
+		juego->personaje.elemento_en_uso = indice;
+	}
+}
+
 void encender_linterna(juego_t* juego, char ultimo_movimiento){
 	int indice = obtener_posicion_mochila(juego->personaje.mochila, LINTERNA, juego->personaje.cantidad_elementos);
 
@@ -830,7 +889,7 @@ void encender_linterna(juego_t* juego, char ultimo_movimiento){
 		printf("ERROR! Sin pilas.");
 
 	} else{
-		iluminar_con(juego, ultimo_movimiento, LINTERNA);
+		iluminar_con(juego, LINTERNA);
 		juego->personaje.elemento_en_uso = indice;
 
 	}
@@ -849,7 +908,7 @@ void iluminar_hacia_arriba(juego_t* juego){
 	for (i = 0; i < juego->cantidad_obstaculos; i++){
 		if (esta_arriba_de(juego->personaje.posicion, juego->obstaculos[i].posicion )){
 			juego->obstaculos[i].visible = true;
-			printf("Se ilumina fil: %i y col: %i\n",juego->obstaculos[i].posicion.fil, juego-> obstaculos[i].posicion.col);
+			//printf("Se ilumina fil: %i y col: %i\n",juego->obstaculos[i].posicion.fil, juego-> obstaculos[i].posicion.col);
 		}
 	
 	}
@@ -857,7 +916,7 @@ void iluminar_hacia_arriba(juego_t* juego){
 	for (i = 0; i < juego->cantidad_herramientas; i++){
 		if (esta_arriba_de(juego->personaje.posicion, juego->herramientas[i].posicion )){
 			juego->herramientas[i].visible = true;
-			printf("Se ilumina fil: %i y col: %i\n",juego->herramientas[i].posicion.fil, juego-> herramientas[i].posicion.col);
+			//printf("Se ilumina fil: %i y col: %i\n",juego->herramientas[i].posicion.fil, juego-> herramientas[i].posicion.col);
 		}
 	
 	}
@@ -876,7 +935,7 @@ void iluminar_hacia_abajo(juego_t* juego){
 	for (i = 0; i < juego->cantidad_obstaculos; i++){
 		if (esta_abajo_de(juego->personaje.posicion, juego->obstaculos[i].posicion )){
 			juego->obstaculos[i].visible = true;
-			printf("Se ilumina fil: %i y col: %i\n",juego->obstaculos[i].posicion.fil, juego-> obstaculos[i].posicion.col);
+			//printf("Se ilumina fil: %i y col: %i\n",juego->obstaculos[i].posicion.fil, juego-> obstaculos[i].posicion.col);
 		}
 	
 	}
@@ -884,7 +943,7 @@ void iluminar_hacia_abajo(juego_t* juego){
 	for (i = 0; i < juego->cantidad_herramientas; i++){
 		if (esta_abajo_de(juego->personaje.posicion, juego->herramientas[i].posicion )){
 			juego->herramientas[i].visible = true;
-				printf("Se ilumina fil: %i y col: %i\n",juego->herramientas[i].posicion.fil, juego-> herramientas[i].posicion.col);
+				//printf("Se ilumina fil: %i y col: %i\n",juego->herramientas[i].posicion.fil, juego-> herramientas[i].posicion.col);
 		}
 	
 	}
@@ -906,7 +965,7 @@ void iluminar_hacia_derecha(juego_t* juego){
 	for (i = 0; i < (juego->cantidad_obstaculos); i++){
 		if (esta_derecha_de(juego->personaje.posicion, juego->obstaculos[i].posicion )){
 			juego->obstaculos[i].visible = true;
-				printf("Se ilumina fil: %i y col: %i\n",juego->obstaculos[i].posicion.fil, juego-> obstaculos[i].posicion.col);
+				//printf("Se ilumina fil: %i y col: %i\n",juego->obstaculos[i].posicion.fil, juego-> obstaculos[i].posicion.col);
 		}
 	
 	}
@@ -914,7 +973,7 @@ void iluminar_hacia_derecha(juego_t* juego){
 	for (i = 0; i < (juego->cantidad_herramientas); i++){
 		if (esta_derecha_de(juego->personaje.posicion, juego->herramientas[i].posicion )){
 			juego->herramientas[i].visible = true;
-			printf("Se ilumina fil: %i y col: %i\n",juego->herramientas[i].posicion.fil, juego-> herramientas[i].posicion.col);
+			//printf("Se ilumina fil: %i y col: %i\n",juego->herramientas[i].posicion.fil, juego-> herramientas[i].posicion.col);
 		}
 	
 	}
@@ -940,7 +999,7 @@ void iluminar_hacia_izquierda(juego_t* juego){
 
 		if (esta_izquierda_de(posicion_personaje, posicion_elemento )){
 			juego->obstaculos[i].visible = true;
-			printf("Se ilumina fil: %i y col: %i\n",posicion_elemento.fil, posicion_elemento.col);
+			//printf("Se ilumina fil: %i y col: %i\n",posicion_elemento.fil, posicion_elemento.col);
 		}
 	
 	}
@@ -950,7 +1009,7 @@ void iluminar_hacia_izquierda(juego_t* juego){
 		
 		if (esta_izquierda_de(juego->personaje.posicion, posicion_elemento)){
 			juego->herramientas[i].visible = true;
-			printf("Se ilumina fil: %i y col: %i\n",posicion_elemento.fil, posicion_elemento.col);
+			//printf("Se ilumina fil: %i y col: %i\n",posicion_elemento.fil, posicion_elemento.col);
 		}
 	
 	}
@@ -983,17 +1042,14 @@ bool hay_elemento_en_uso (personaje_t personaje){
 	return (personaje.elemento_en_uso!=SIN_ELEMENTOS_EN_USO);
 }
 
-bool hay_bengala_activa (elemento_mochila_t mochila[MAX_HERRAMIENTAS], int cantidad_herramientas){
-	int i = 0;
+bool hay_bengala_activa (personaje_t personaje, int elemento_en_uso){
 	bool bengala = false;
-	while((mochila[i].tipo!=BENGALA)&&(i < cantidad_herramientas)){
-		i++;
-	}
 
-	if((mochila[i].tipo == BENGALA)&&(mochila[i].movimientos_restantes!=DURACION_BENGALAS)){
+	if((personaje.mochila[elemento_en_uso].tipo==BENGALA)&&(personaje.mochila[elemento_en_uso].movimientos_restantes >MIN_MOVIMIENTOS)){
+		printf("Bengala Activa!\n");
 		bengala = true;
 	}
-
+	printf("%d", bengala);
 	return bengala;
 }
 bool se_puede_mover(coordenada_t posicion){
@@ -1128,7 +1184,7 @@ void mostrar_juego(juego_t juego){
 	double tiempo = 0;
 	char tablero[MAX_FILAS][MAX_COLUMNAS];
 
-	//system("clear");
+	system("clear");
 
 	printf("Obstáculos %i\n", juego.cantidad_obstaculos);
 	printf("Herramientas %i\n", juego.cantidad_herramientas);
@@ -1137,9 +1193,11 @@ void mostrar_juego(juego_t juego){
 
 	printf("Personaje: (%c). Fil: %i. Col: %i\n", juego.personaje.tipo, juego.personaje.posicion.fil, juego.personaje.posicion.col); 
 	printf("Personaje: (%c). Fil: %i. Col: %i\n", CHLOE, juego.amiga_chloe.fil, juego.amiga_chloe.col); 
+	printf("Para ganar debes encontrar a Chloe (%s%s%c%s)",VERDE_T, MAGENTA_F,CHLOE,RESET_COLOR );
 	inicializar_matriz(tablero);
 	cargar_posiciones_visibles(tablero, juego);
 	mostrar_matriz(tablero);
+
 
 	if(juego.personaje.ultimo_movimiento == TIEMPO_RESTANTE){
 		tiempo = TIEMPO_TOTAL - juego.personaje.tiempo_perdido;
