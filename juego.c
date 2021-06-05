@@ -45,7 +45,6 @@
 #define MAX_HERRAMIENTAS 600
 #define MAX_FILAS 20
 #define MAX_COLUMNAS 30
-#define MAX_CARACTERES 256
 
 const int FILA_MINIMA = 0;
 const int COLUMNA_MINIMA = 0;
@@ -128,7 +127,7 @@ typedef struct personaje {
 	coordenada_t posicion; 
 	elemento_mochila_t mochila[MAX_HERRAMIENTAS];
 	int cantidad_elementos;
-	int elemento_en_uso; // -1 si no hay nada en uso, o posicion del vector de lo que esta en uso.
+	int elemento_en_uso;
 	double tiempo_perdido;
 	char ultimo_movimiento;
 } personaje_t;
@@ -147,11 +146,12 @@ void mostrar_matriz(char matriz[MAX_FILAS][MAX_COLUMNAS]);
 
 void inicializar_juego(juego_t* juego, char tipo_personaje);
 void inicializar_matriz (char matriz[MAX_FILAS][MAX_COLUMNAS]);
-void inicializar_personaje(juego_t* juego, char matriz[MAX_FILAS][MAX_COLUMNAS], char tipo_personaje);
-void inicializar_chloe (juego_t* juego, char matriz[MAX_FILAS][MAX_COLUMNAS]);
-bool esta_posicion_libre(char matriz[MAX_FILAS][MAX_COLUMNAS], coordenada_t posicion);
-void inicializar_obstaculos (juego_t* juego, char matriz[MAX_FILAS][MAX_COLUMNAS], int cantidad, char tipo);
-void inicializar_recolectables (juego_t* juego, char matriz[MAX_FILAS][MAX_COLUMNAS], int cantidad, char tipo);
+void inicializar_personaje(juego_t* juego, char tipo_personaje);
+void inicializar_chloe (juego_t* juego);
+bool esta_posicion_libre(juego_t juego, coordenada_t posicion);
+bool es_misma_posicion(coordenada_t posicion1, coordenada_t posicion2);
+void inicializar_obstaculos (juego_t* juego, int cantidad, char tipo);
+void inicializar_recolectables (juego_t* juego, int cantidad, char tipo);
 
 coordenada_t posicion_aleatoria();
 coordenada_t posicion_inicial_personaje();
@@ -202,6 +202,30 @@ void encender_vela(juego_t* juego);
 bool esta_alrededor(coordenada_t posicion_personaje, coordenada_t posicion_elegida);
 void iluminar_alrededor(juego_t* juego);
 
+void mostrar_todas_posiciones(juego_t juego){
+	int i;
+	
+	printf("PJ: %c , FIL: %i COL: %i\n", juego.personaje.tipo, juego.personaje.posicion.fil, juego.personaje.posicion.col);
+
+	printf("PJ: %c , FIL: %i COL: %i\n", CHLOE, juego.amiga_chloe.fil, juego.amiga_chloe.col);
+
+	i = 0;
+
+		while(i < juego.cantidad_obstaculos){
+			
+			printf("OBS: %c FIL: %i COL: %i \n", juego.obstaculos[i].tipo,juego.obstaculos[i].posicion.fil,juego.obstaculos[i].posicion.col);
+
+			i++;
+		}
+
+	i = 0;
+
+		while(i < juego.cantidad_herramientas){
+			printf("OBS: %c FIL: %i COL: %i \n", juego.herramientas[i].tipo,juego.herramientas[i].posicion.fil,juego.herramientas[i].posicion.col);
+			i++;
+		}
+}
+
 
 void ocultar_todo (juego_t* juego);
 
@@ -245,24 +269,26 @@ void mostrar_matriz(char matriz[MAX_FILAS][MAX_COLUMNAS]){
  * y los datos del personaje. 
  */
 void inicializar_juego(juego_t* juego, char tipo_personaje){
-	char matriz_temporal[MAX_FILAS][MAX_COLUMNAS];
+
 	juego->cantidad_obstaculos = 0;
-	juego ->cantidad_herramientas = 0;
+	juego->cantidad_herramientas = 0;
+	
+	inicializar_personaje(juego, tipo_personaje);
+    inicializar_chloe(juego);
 
-	inicializar_matriz(matriz_temporal);
-	inicializar_personaje(juego, matriz_temporal, tipo_personaje);
+	inicializar_obstaculos(juego, MAX_ARBOLES_NORMAL, ARBOL);
+	inicializar_obstaculos(juego, MAX_PIEDRAS_NORMAL, PIEDRA);
 
-    inicializar_chloe(juego,matriz_temporal);
-	inicializar_obstaculos(juego, matriz_temporal, MAX_ARBOLES_NORMAL, ARBOL);
-	inicializar_obstaculos(juego, matriz_temporal, MAX_PIEDRAS_NORMAL, PIEDRA);
 
-	inicializar_recolectables(juego, matriz_temporal, MAX_PILAS_NORMAL, PILA);
-	inicializar_recolectables(juego, matriz_temporal, MAX_VELAS_NORMAL, VELA);
-	inicializar_recolectables(juego, matriz_temporal, MAX_BENGALAS_NORMAL, BENGALA);
+	inicializar_recolectables(juego, MAX_PILAS_NORMAL, PILA);
+	inicializar_recolectables(juego, MAX_VELAS_NORMAL, VELA);
+	inicializar_recolectables(juego, MAX_BENGALAS_NORMAL, BENGALA);
 
 	printf("Obstáculos %i\n", juego->cantidad_obstaculos);
 	printf("Herramientas %i\n", juego->cantidad_herramientas);
 	printf("Cantidad Mochila %i\n", juego->personaje.cantidad_elementos);
+
+	mostrar_todas_posiciones(*juego);
 
  
 }
@@ -291,12 +317,12 @@ void generar_kit_oso (juego_t* juego, int movimientos_linterna, int cantidad_vel
 	int cantidad;
 
 	juego->personaje.cantidad_elementos = 0;
-	cantidad = 0;
 
 	juego->personaje.mochila[0].tipo=LINTERNA;
 	juego->personaje.mochila[0].movimientos_restantes = movimientos_linterna;
 
 	juego->personaje.cantidad_elementos++;
+
 	cantidad = juego->personaje.cantidad_elementos;
 
 	for ( i =  cantidad; i < cantidad_velas + cantidad; i++ ){
@@ -316,60 +342,106 @@ void generar_kit_oso (juego_t* juego, int movimientos_linterna, int cantidad_vel
 	}
 }
 
-void inicializar_personaje(juego_t* juego, char matriz[MAX_FILAS][MAX_COLUMNAS], char tipo_personaje){
-	juego->personaje.posicion = posicion_inicial_personaje();
-	matriz[juego->personaje.posicion.fil][juego->personaje.posicion.col] = tipo_personaje;
+bool es_misma_posicion(coordenada_t posicion1, coordenada_t posicion2){
+	
+	return ((posicion1.fil == posicion2.fil) && (posicion1.col == posicion2.col));
+	
+}
 
+bool esta_posicion_libre(juego_t juego, coordenada_t posicion){
+	int i;
+	bool esta_libre = true;
+
+	if (es_misma_posicion(juego.personaje.posicion, posicion)){
+		esta_libre = false;
+
+	} else if (es_misma_posicion( juego.amiga_chloe, posicion) ){
+		esta_libre = false;
+
+	} else {
+		i = 0;
+
+		while(esta_libre && i < juego.cantidad_obstaculos){
+			
+			if(es_misma_posicion(juego.obstaculos[i].posicion, posicion)){
+				esta_libre=false;
+			}
+			i++;
+		}
+
+		i = 0;
+
+		while(esta_libre && i < juego.cantidad_herramientas){
+
+			if(es_misma_posicion(juego.herramientas[i].posicion, posicion)){
+				esta_libre=false;
+			}
+			i++;
+		}
+	}
+
+	return esta_libre;
+}
+
+void inicializar_personaje(juego_t* juego, char tipo_personaje){
+	
+	juego->personaje.tipo = tipo_personaje;
+	juego->personaje.posicion = posicion_inicial_personaje();
 	juego->personaje.elemento_en_uso = SIN_ELEMENTOS_EN_USO;
 	juego->personaje.ultimo_movimiento = MOVERSE_DERECHA;
+
 	obtener_kit_inicial_personaje(juego, tipo_personaje);
 }
 
-void inicializar_chloe (juego_t* juego, char matriz[MAX_FILAS][MAX_COLUMNAS]){
+void inicializar_chloe (juego_t* juego){
 	do{ 
 		juego->amiga_chloe = posicion_aleatoria();
 
-	}  while (!esta_posicion_libre(matriz, juego->amiga_chloe));
+	}  while (es_misma_posicion(juego->personaje.posicion, juego->amiga_chloe));
 
 	juego->chloe_visible = VISIBILIDAD_DEFECTO;
-	matriz[juego->amiga_chloe.fil][juego->amiga_chloe.col] = CHLOE;
+
 }
 
-bool esta_posicion_libre(char matriz[MAX_FILAS][MAX_COLUMNAS], coordenada_t posicion){
-	return (matriz[posicion.fil][posicion.col] == VACIO);
-}
-
-void inicializar_obstaculos (juego_t* juego, char matriz[MAX_FILAS][MAX_COLUMNAS], int cantidad, char tipo){
+void inicializar_obstaculos (juego_t* juego, int cantidad, char tipo){
 	int i;
 	int cantidad_inicial = juego->cantidad_obstaculos;
+
+	coordenada_t posicion;
 
 	for ( i = cantidad_inicial; i < cantidad + cantidad_inicial; i++){
 		juego->obstaculos[i].tipo = tipo; 
 
 		do {
-			juego->obstaculos[i].posicion = posicion_aleatoria();
-		} while(!esta_posicion_libre(matriz, juego->obstaculos[i].posicion) );
-		
+			posicion = posicion_aleatoria();
+		} while(!esta_posicion_libre(*juego, posicion ));
+
+		juego->cantidad_obstaculos++;	
+
+		juego->obstaculos[i].posicion = posicion;
 		juego->obstaculos[i].visible = VISIBILIDAD_DEFECTO;
-		matriz[juego->obstaculos[i].posicion.fil][juego->obstaculos[i].posicion.col] = tipo;
-		juego->cantidad_obstaculos++;
+
 	}
 }
 
-void inicializar_recolectables (juego_t* juego, char matriz[MAX_FILAS][MAX_COLUMNAS], int cantidad, char tipo){
+void inicializar_recolectables (juego_t* juego, int cantidad, char tipo){
 	int i;
 	int cantidad_inicial = juego->cantidad_herramientas;
 
+	coordenada_t posicion;
+
 	for ( i = cantidad_inicial; i < cantidad + cantidad_inicial; i++){
 		juego->herramientas[i].tipo = tipo; 
+		juego->cantidad_herramientas++;
 
 		do {
-			juego->herramientas[i].posicion = posicion_aleatoria();
-		} while(!esta_posicion_libre(matriz, juego->herramientas[i].posicion) );
+			posicion = posicion_aleatoria();
+		} while(!esta_posicion_libre(*juego, posicion));
 
+		juego->herramientas[i].posicion = posicion;	
 		juego->herramientas[i].visible = VISIBILIDAD_DEFECTO;
-		matriz[juego->herramientas[i].posicion.fil][juego->herramientas[i].posicion.col] = tipo;
-		juego->cantidad_herramientas++;
+
+
 	}	
 }
 
@@ -465,6 +537,18 @@ void realizar_jugada(juego_t* juego, char jugada){
 			posicion.fil--;
 			if(se_puede_mover(posicion)){ 
 
+				if(esta_posicion_libre(*juego, posicion)){
+					juego->personaje.posicion = posicion;
+				}
+
+				else {
+					juego->personaje.posicion = posicion;
+					elemento_chocado = matriz_temporal[posicion.fil][posicion.col];
+					indice_objeto_chocado = indice_elemento(*juego, posicion, elemento_chocado);
+					eliminar_elemento(juego, indice_objeto_chocado,elemento_chocado);
+					
+				}
+
 				if (indice_en_uso != SIN_ELEMENTOS_EN_USO){
 
 					if((juego->personaje.mochila[indice_en_uso].movimientos_restantes >MIN_MOVIMIENTOS)){
@@ -478,18 +562,6 @@ void realizar_jugada(juego_t* juego, char jugada){
 
 					}
 
-				}
-
-				if(esta_posicion_libre(matriz_temporal, posicion)){
-					juego->personaje.posicion = posicion;
-				}
-
-				else {
-					juego->personaje.posicion = posicion;
-					elemento_chocado = matriz_temporal[posicion.fil][posicion.col];
-					indice_objeto_chocado = indice_elemento(*juego, posicion, elemento_chocado);
-					eliminar_elemento(juego, indice_objeto_chocado,elemento_chocado);
-					
 				}
 
 				juego->personaje.ultimo_movimiento = jugada;
@@ -517,7 +589,7 @@ void realizar_jugada(juego_t* juego, char jugada){
 				}
 
 				
-				if(esta_posicion_libre(matriz_temporal, posicion)){
+				if(esta_posicion_libre(*juego, posicion)){
 					juego->personaje.posicion = posicion;
 				}
 
@@ -557,7 +629,7 @@ void realizar_jugada(juego_t* juego, char jugada){
 				}
 
 				
-				if(esta_posicion_libre(matriz_temporal, posicion)){
+				if(esta_posicion_libre(*juego, posicion)){
 					juego->personaje.posicion = posicion;
 				}
 
@@ -597,7 +669,7 @@ void realizar_jugada(juego_t* juego, char jugada){
 
 
 				
-				if(esta_posicion_libre(matriz_temporal, posicion)){
+				if(esta_posicion_libre(*juego, posicion)){
 					juego->personaje.posicion = posicion;
 				}
 
@@ -618,7 +690,6 @@ void realizar_jugada(juego_t* juego, char jugada){
 		case ENCENDER_LINTERNA:
 			if (!hay_bengala_activa(juego->personaje.mochila, juego->cantidad_herramientas)){
 				if( !hay_elemento_en_uso((juego->personaje)) ){
-					printf("No hay elemento en uso\n");
 
 					encender_linterna(juego, juego->personaje.ultimo_movimiento);
 				}	
@@ -626,10 +697,9 @@ void realizar_jugada(juego_t* juego, char jugada){
 			break;
 
 		case ENCENDER_VELA:
-			printf("Entró");
+
 			if (!hay_bengala_activa(juego->personaje.mochila, juego->cantidad_herramientas)){
 				if( !hay_elemento_en_uso((juego->personaje)) ){
-					printf("No hay elemento en uso\n");
 
 					encender_vela(juego);
 				}	
@@ -639,7 +709,6 @@ void realizar_jugada(juego_t* juego, char jugada){
 		default:
 			break;
 	}
-	printf("Ultimo movimiento: %c\n", juego->personaje.ultimo_movimiento );
 	
 }
 
@@ -690,7 +759,7 @@ void iluminar_alrededor(juego_t* juego){
 	for (i = 0; i < juego->cantidad_obstaculos; i++){
 		if (esta_alrededor(juego->personaje.posicion, juego->obstaculos[i].posicion )){
 			juego->obstaculos[i].visible = true;
-			printf("Se ilumina fil: %i y col: %i\n",juego->obstaculos[i].posicion.fil, juego-> obstaculos[i].posicion.col);
+			//printf("Se ilumina fil: %i y col: %i\n",juego->obstaculos[i].posicion.fil, juego-> obstaculos[i].posicion.col);
 		}
 	
 	}
@@ -698,7 +767,7 @@ void iluminar_alrededor(juego_t* juego){
 	for (i = 0; i < juego->cantidad_herramientas; i++){
 		if (esta_alrededor(juego->personaje.posicion, juego->herramientas[i].posicion )){
 			juego->herramientas[i].visible = true;
-			printf("Se ilumina fil: %i y col: %i\n",juego->herramientas[i].posicion.fil, juego-> herramientas[i].posicion.col);
+			//printf("Se ilumina fil: %i y col: %i\n",juego->herramientas[i].posicion.fil, juego-> herramientas[i].posicion.col);
 		}
 	
 	}
@@ -708,7 +777,7 @@ void iluminar_con (juego_t* juego, char ultimo_movimiento, char herramienta){
 	if(herramienta == LINTERNA){
 		switch(ultimo_movimiento){
 			case MOVERSE_ARRIBA:
-				printf("Iluminar arriba\n");
+		
 				iluminar_hacia_arriba(juego);
 				break;
 
@@ -860,7 +929,7 @@ void iluminar_hacia_izquierda(juego_t* juego){
 	coordenada_t posicion_chloe = juego->amiga_chloe;
 	coordenada_t posicion_elemento;
 	int i;
-	//printf("Estoy iluminando hacia la izquierda\n");
+
 	if (esta_izquierda_de( posicion_personaje, posicion_chloe ) ){
 		juego->chloe_visible = true;
 	}
@@ -933,9 +1002,12 @@ bool se_puede_mover(coordenada_t posicion){
 
 void eliminar_elemento (juego_t* juego, int indice, char tipo_elemento){
 	if ( es_obstaculo(tipo_elemento) ){
+		printf("SE eliminó fil:%i col:%i ", juego->obstaculos[indice].posicion.col,juego->obstaculos[indice].posicion.fil );
 		eliminar_obstaculo(juego->obstaculos,&(juego->cantidad_obstaculos), indice);
 
 	} else if ( es_herramienta (tipo_elemento) ){
+	
+		printf("SE eliminó fil:%i col:%i ", juego->obstaculos[indice].posicion.col,juego->obstaculos[indice].posicion.fil );
 		eliminar_herramienta(juego->herramientas ,&(juego->cantidad_herramientas), indice);
 	}
 }
@@ -1056,7 +1128,6 @@ void mostrar_juego(juego_t juego){
 	double tiempo = 0;
 	char tablero[MAX_FILAS][MAX_COLUMNAS];
 
-	//system("cls");
 	//system("clear");
 
 	printf("Obstáculos %i\n", juego.cantidad_obstaculos);
@@ -1106,12 +1177,12 @@ int main(){
 	srand ((unsigned)time(NULL));
 	char ultima_jugada;
     juego_t juego;
-	char personalidad_detectada;
+	char personalidad_detectada = PANDA;
+
     test_de_personalidad(&personalidad_detectada);
-	juego.personaje.tipo = personalidad_detectada;
-    printf("%c\n", juego.personaje.tipo); 
+    printf("%c\n", personalidad_detectada); 
 	
-    inicializar_juego(&juego, juego.personaje.tipo);
+    inicializar_juego(&juego, personalidad_detectada);
 	mostrar_juego(juego);
 	iniciar_cronometro();
 
