@@ -98,6 +98,7 @@ const double TIEMPO_PIEDRA = 2.0;
 const double TIEMPO_EVADIR_PIEDRA = 0.0;
 const double TIEMPO_TREPAR = 1.0;
 const double TIEMPO_TREPAR_RAPIDO = 0.5;
+const double TIEMPO_GPS = 30.0;
 
 bool VISIBILIDAD_DEFECTO = false;
 
@@ -222,7 +223,7 @@ bool estan_en_diagonal(coordenada_t posicion1, coordenada_t posicion2);
 int estado_juego(juego_t juego);
 bool chloe_fue_encontrada (juego_t juego);
 
-
+//BORRAR
 void mostrar_todas_posiciones(juego_t juego){
 	int i;
 	
@@ -293,6 +294,7 @@ void inicializar_personaje(juego_t* juego, char tipo_personaje){
  * POS: 
  */ 
 coordenada_t posicion_inicial_personaje(){
+	
 	coordenada_t posicion;
 
     posicion.col=COLUMNA_INICIAL;
@@ -390,6 +392,7 @@ void agregar_obstaculos (juego_t* juego, int cantidad, char tipo){
 	int i;
 
 
+
 	for ( i = cantidad_inicial; i < cantidad + cantidad_inicial; i++){
 		juego->obstaculos[i].tipo = tipo; 
 
@@ -407,7 +410,7 @@ void agregar_obstaculos (juego_t* juego, int cantidad, char tipo){
 
 
 bool esta_posicion_libre(juego_t juego, coordenada_t posicion){
-	int i = 0;
+	int i = 0, j = 0;
 	bool esta_libre = true;
 
 	if (es_misma_posicion(juego.personaje.posicion, posicion)){
@@ -426,14 +429,12 @@ bool esta_posicion_libre(juego_t juego, coordenada_t posicion){
 			i++;
 		}
 
-		i = 0;
+		while(esta_libre && j < juego.cantidad_herramientas){
 
-		while(esta_libre && i < juego.cantidad_herramientas){
-
-			if(es_misma_posicion(juego.herramientas[i].posicion, posicion)){
+			if(es_misma_posicion(juego.herramientas[j].posicion, posicion)){
 				esta_libre=false;
 			}
-			i++;
+			j++;
 		}
 	}
 
@@ -448,7 +449,6 @@ void agregar_recolectables (juego_t* juego, int cantidad, char tipo){
 	int cantidad_inicial = juego->cantidad_herramientas;
 	int i;
 
-
 	for ( i = cantidad_inicial; i < cantidad + cantidad_inicial; i++){
 
 		do {
@@ -458,8 +458,30 @@ void agregar_recolectables (juego_t* juego, int cantidad, char tipo){
 		juego->herramientas[i].visible = VISIBILIDAD_DEFECTO;
 		juego->herramientas[i].posicion = posicion;	
 		juego->herramientas[i].tipo = tipo; 
+
 		juego->cantidad_herramientas++;
 	}	
+}
+
+//BORRAR
+void cargar_posiciones_reales (char tablero[MAX_FILAS][MAX_COLUMNAS], juego_t juego){
+
+	int i;
+
+	tablero[juego.amiga_chloe.fil][juego.amiga_chloe.col] = CHLOE;
+	
+
+	for (i = 0; i< juego.cantidad_obstaculos; i++){
+		tablero[juego.obstaculos[i].posicion.fil][juego.obstaculos[i].posicion.col] = juego.obstaculos[i].tipo;
+	}	
+	
+	for (i = 0; i< juego.cantidad_herramientas; i++){
+		tablero[juego.herramientas[i].posicion.fil][juego.herramientas[i].posicion.col] = juego.herramientas[i].tipo;
+
+	}
+
+	tablero[juego.personaje.posicion.fil][juego.personaje.posicion.col] = juego.personaje.tipo;
+
 }
 
 
@@ -478,8 +500,12 @@ void mostrar_juego(juego_t juego){
 	printf("Personaje: (%c). Fil: %i. Col: %i\n", juego.personaje.tipo, juego.personaje.posicion.fil, juego.personaje.posicion.col); 
 	printf("Personaje: (%c). Fil: %i. Col: %i\n", CHLOE, juego.amiga_chloe.fil, juego.amiga_chloe.col); 
 	printf("Para ganar debes encontrar a Chloe (%s%s%c%s)",VERDE_T, MAGENTA_F,CHLOE,RESET_COLOR );
+
 	inicializar_matriz(tablero);
+	
+	//cargar_posiciones_reales(tablero, juego);
 	cargar_posiciones_visibles(tablero, juego);
+
 	mostrar_matriz(tablero);
 
 }
@@ -521,17 +547,15 @@ void cargar_posiciones_visibles (char tablero[MAX_FILAS][MAX_COLUMNAS], juego_t 
 
 
 bool tiene_beneficio (char tipo, double tiempo_perdido){
-	return ( (tipo==PANDA)&& (tiempo_perdido>=30.0) );
+	return ( (tipo == PANDA) && ( tiempo_perdido >= TIEMPO_GPS) );
 }
 
 
 void mostrar_matriz(char matriz[MAX_FILAS][MAX_COLUMNAS]){
 	int i,j;
 
-	printf("\n"); 
 	printf("   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9\n"); 
 	for ( i = 0; i < MAX_FILAS; i++){
-		
 		printf("%2d ", i);
 		
 		for ( j = 0; j < MAX_COLUMNAS; j++){
@@ -578,8 +602,6 @@ void mostrar_matriz(char matriz[MAX_FILAS][MAX_COLUMNAS]){
  * el int elemento_en_uso en -1.
  */
 void realizar_jugada(juego_t* juego, char jugada){
-
-	//mostrar_todas_posiciones(*juego);
 
 	coordenada_t posicion = juego->personaje.posicion;
 	
@@ -634,43 +656,31 @@ void realizar_jugada(juego_t* juego, char jugada){
 		default:
 			break;
 
-	//mostrar_todas_posiciones(*juego);
 	}
 }
 
 
-coordenada_t posicion_hacia(coordenada_t posicion, char direccion){
-	
-	if (direccion == MOVERSE_ARRIBA)
-		posicion.fil--;
-	else if (direccion == MOVERSE_ABAJO)
-		posicion.fil++;
-	else if (direccion == MOVERSE_IZQUIERDA)
-		posicion.col--;
-	else
-		posicion.col++;
-
-	return posicion;
-}
-
-
 void moverse_hacia(juego_t* juego, coordenada_t posicion_nueva, char direccion){
-	int indice_en_uso = juego->personaje.elemento_en_uso;
+
 	char tipo_chocado;
+	int indice_en_uso = juego->personaje.elemento_en_uso;
 
 	posicion_nueva = posicion_hacia(posicion_nueva, direccion);
 
 	if(se_puede_mover(posicion_nueva)){ 
 
-		juego->personaje.ultimo_movimiento = direccion;
-		juego->personaje.posicion = posicion_nueva;
-
-		if(!esta_posicion_libre(*juego, juego->personaje.posicion)){
-
-			tipo_chocado = tipo_elemento_chocado(*juego, juego->personaje.posicion);
-			aplicar_efecto_de(juego, tipo_chocado, juego->personaje.posicion);	
+		if(!esta_posicion_libre(*juego, posicion_nueva)){
+			
+			tipo_chocado = tipo_elemento_chocado(*juego, posicion_nueva);
+			printf("Chocó %c\n", tipo_chocado);
+			aplicar_efecto_de(juego, tipo_chocado, posicion_nueva);	
 		}
-		
+
+		if (tipo_chocado!=KOALA){
+			juego->personaje.posicion = posicion_nueva;		
+		}
+		juego->personaje.ultimo_movimiento = direccion;
+
 		if (indice_en_uso != SIN_ELEMENTOS_EN_USO){
 			intentar_iluminar_con(juego,juego->personaje.mochila[indice_en_uso].tipo, indice_en_uso);
 		}
@@ -678,6 +688,22 @@ void moverse_hacia(juego_t* juego, coordenada_t posicion_nueva, char direccion){
 	} else 
 		printf("Movimiento no posible");
 	
+}
+
+
+coordenada_t posicion_hacia(coordenada_t posicion, char direccion){
+	
+	if (direccion == MOVERSE_ARRIBA){
+		posicion.fil--;
+	}else if (direccion == MOVERSE_ABAJO){
+		posicion.fil++;
+	}else if (direccion == MOVERSE_IZQUIERDA){
+		posicion.col--;
+	}else{
+		posicion.col++;
+	}
+
+	return posicion;
 }
 
 
@@ -690,17 +716,15 @@ void aplicar_efecto_de(juego_t* juego, char tipo_chocado, coordenada_t posicion_
 
 	int indice_chocado = 0;
 
-	if (es_obstaculo(tipo_chocado))
+	if (es_obstaculo(tipo_chocado)){
 		aplicar_contratiempo(juego, &(juego->personaje), tipo_chocado);
 
-	else {
+	}else {
 		agregar_en_mochila(juego->personaje.mochila,&(juego->personaje.cantidad_elementos), tipo_chocado);
+	
+		indice_chocado = indice_herramienta(*juego, posicion_personaje);
 
-
-		printf("Cantidad de obstaculos: %i\n", juego->cantidad_obstaculos);		
-
-		indice_chocado = indice_herramienta(*juego, juego->personaje.posicion);
-
+		printf("Indice chocado: %i\n", indice_chocado);		
 		printf("Cantidad de obstaculos dps de chocado: %i\n", juego->cantidad_obstaculos);
 
 		eliminar_herramienta(juego->herramientas, &(juego->cantidad_herramientas),indice_chocado);
@@ -712,8 +736,8 @@ void aplicar_efecto_de(juego_t* juego, char tipo_chocado, coordenada_t posicion_
 char tipo_elemento_chocado (juego_t juego, coordenada_t posicion){
 
 	bool chocado = false;
-	char tipo;
-	int i = 0;
+	char tipo = '0';
+	int i = 0, j = 0;
 
 	while(!chocado && i<juego.cantidad_obstaculos){
 
@@ -722,20 +746,18 @@ char tipo_elemento_chocado (juego_t juego, coordenada_t posicion){
 			tipo = juego.obstaculos[i].tipo;
 			chocado = true;
 
-		} else {
-			i++;
 		}
+		i++;
 	}
 
-	while(!chocado && i<juego.cantidad_herramientas){
+	while(!chocado && j<juego.cantidad_herramientas){
 
-		if(es_misma_posicion(juego.herramientas[i].posicion, posicion)){
+		if(es_misma_posicion(juego.herramientas[j].posicion, posicion)){
 
-			tipo = juego.obstaculos[i].tipo;
+			tipo = juego.herramientas[j].tipo;
 			chocado = true;
 		}
-
-		i++;
+		j++;
 	}
 
 	return tipo;
@@ -811,12 +833,14 @@ double trepar_arbol(char tipo_personaje){
 
 
 void tropezar_con_sekoalaz (juego_t* juego,personaje_t* personaje){
-	char tipo_chocado = '0';
 	coordenada_t posicion;
 
 	printf("Sekoalaz Chocado\n");
 
-	if(!esta_columna_ocupada(*juego, COLUMNA_INICIAL)){
+	bool columna = esta_columna_ocupada(*juego, COLUMNA_INICIAL);
+
+	printf("Está ocupada? %d", columna);
+	if(!columna){
 
 		do{
 			posicion = posicion_inicial_personaje();
@@ -824,11 +848,17 @@ void tropezar_con_sekoalaz (juego_t* juego,personaje_t* personaje){
 		} while(!esta_posicion_libre(*juego, posicion));
 
 	} else {
-		posicion = posicion_aleatoria();
+
+		do{
+			posicion = posicion_aleatoria();
+
+		} while(!esta_posicion_libre(*juego, posicion));
 
 	}
 
-	personaje->posicion = posicion;
+	printf("Posición nueva FIL: %i COL: %i \n", posicion.fil, posicion.col);
+	juego->personaje.posicion = posicion;
+	printf("Posición nueva PJ FIL: %i COL: %i \n", juego->personaje.posicion.fil, juego->personaje.posicion.col);
 }
 
 
@@ -904,7 +934,7 @@ void eliminar_herramienta(elemento_del_mapa_t herramientas[MAX_HERRAMIENTAS], in
 
 void intentar_iluminar_con(juego_t* juego, char herramienta, int indice_herramienta){
 
-	if((juego->personaje.mochila[indice_herramienta].movimientos_restantes >MIN_MOVIMIENTOS)){
+	if((juego->personaje.mochila[indice_herramienta].movimientos_restantes >MIN_MOVIMIENTOS) ){
 		ocultar_todo(juego);
 		iluminar_con(juego,herramienta);
 
@@ -1172,18 +1202,19 @@ void iluminar_con_bengala(juego_t* juego){
 
 
 void usar_herramienta(juego_t* juego, char herramienta){
-	int indice;
+	int indice = 0;
 
 	if (!hay_bengala_activa(juego->personaje, juego->personaje.elemento_en_uso)){
 
 		indice = obtener_posicion_mochila(juego->personaje.mochila, herramienta, juego->personaje.cantidad_elementos);
+		printf("ENTRO %i \n", indice);
 
 		if((indice == juego->personaje.elemento_en_uso)){
 
-		juego->personaje.elemento_en_uso = SIN_ELEMENTOS_EN_USO;
-		ocultar_todo(juego);
+			juego->personaje.elemento_en_uso = SIN_ELEMENTOS_EN_USO;
+			ocultar_todo(juego);
 
-		} else {
+		} if (indice!=NO_HAY_ELEMENTO) {
 
 			if( herramienta == LINTERNA ){
 				encender_linterna(juego, juego->personaje.ultimo_movimiento, indice);
@@ -1215,9 +1246,9 @@ int obtener_posicion_mochila(elemento_mochila_t mochila[MAX_HERRAMIENTAS], char 
 	int i = 0;
 	int indice = NO_HAY_ELEMENTO;
 
-	while(!encontrado){
+	while(!encontrado && (i<cantidad_herramientas) ){
 		
-		if((es_herramienta_buscada(mochila[i], elemento)) && (i<cantidad_herramientas) ){
+		if((es_herramienta_buscada(mochila[i], elemento)) ){
 			encontrado = true;
 			indice = i;
 		} else {
