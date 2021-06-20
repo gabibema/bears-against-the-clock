@@ -48,7 +48,7 @@ int main(){
 	srand ((unsigned)time(NULL));
 
     test_de_personalidad(&personalidad_detectada);
-	system("clear");
+	//system("clear");
 	
     inicializar_juego(&juego, personalidad_detectada);
 
@@ -58,7 +58,7 @@ int main(){
 	do{
 		pedir_jugada(&(ultima_jugada));
 		
-		system("clear");
+		//system("clear");
 		realizar_jugada(&juego, ultima_jugada);
 		printf("Cantidad de obstaculos: %i\n", juego.cantidad_obstaculos);
 
