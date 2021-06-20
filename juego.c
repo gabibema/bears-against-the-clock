@@ -60,6 +60,7 @@ int main(){
 		
 		system("clear");
 		realizar_jugada(&juego, ultima_jugada);
+		printf("Cantidad de obstaculos: %i\n", juego.cantidad_obstaculos);
 
 		mostrar_juego(juego);
 

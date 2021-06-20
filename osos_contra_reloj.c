@@ -102,7 +102,7 @@ const double TIEMPO_TREPAR_RAPIDO = 0.5;
 bool VISIBILIDAD_DEFECTO = false;
 
 const int SIN_ELEMENTOS_EN_USO = -1;
-const int NO_HAY_ELEMENTO = -1;
+const int NO_HAY_ELEMENTO = -2;
 const int MIN_MOVIMIENTOS = 0;
 
 #define MOVERSE_ARRIBA 'W'
@@ -157,7 +157,7 @@ int indice_elemento (juego_t juego, coordenada_t posicion, char tipo_elemento);
 int indice_obstaculo (juego_t juego, coordenada_t posicion);
 int indice_herramienta (juego_t juego, coordenada_t posicion);
 
-void aplicar_efecto_de(juego_t* juego);
+void aplicar_efecto_de(juego_t* juego, char tipo_chocado, coordenada_t posicion_personaje);
 
 bool es_obstaculo (char tipo_elemento);
 bool es_herramienta (char tipo_elemento);
@@ -165,9 +165,10 @@ bool es_herramienta (char tipo_elemento);
 
 char tipo_elemento_chocado (juego_t juego, coordenada_t posicion);
 
-void aplicar_contratiempo (personaje_t* personaje, char contratiempo);
+void aplicar_contratiempo (juego_t* juego, personaje_t* personaje, char contratiempo);
 
-void tropezar_con_sekoalaz (personaje_t* personaje);
+void tropezar_con_sekoalaz (juego_t* juego, personaje_t* personaje);
+bool esta_columna_ocupada(juego_t juego, int columna);
 double trepar_arbol(char tipo_personaje);
 double tropezar_con_piedra(char tipo_personaje);
 
@@ -277,7 +278,6 @@ void inicializar_juego(juego_t* juego, char tipo_personaje){
 
 
 void inicializar_personaje(juego_t* juego, char tipo_personaje){
-	
 	juego->personaje.tipo = tipo_personaje;
 	juego->personaje.posicion = posicion_inicial_personaje();
 	juego->personaje.elemento_en_uso = SIN_ELEMENTOS_EN_USO;
@@ -354,6 +354,7 @@ void generar_kit_oso (juego_t* juego, int movimientos_linterna, int cantidad_vel
 
 
 void inicializar_chloe (juego_t* juego){
+
 	do{ 
 		juego->amiga_chloe = posicion_aleatoria();
 
@@ -374,18 +375,20 @@ coordenada_t posicion_aleatoria(){
 }
 
 
-bool es_misma_posicion(coordenada_t posicion1, coordenada_t posicion2){
+bool es_misma_posicion(coordenada_t posicion_1, coordenada_t posicion_2){
 	
-	return ((posicion1.fil == posicion2.fil) && (posicion1.col == posicion2.col));
+	return ((posicion_1.fil == posicion_2.fil) && (posicion_1.col == posicion_2.col));
 	
 }
 
 
 void agregar_obstaculos (juego_t* juego, int cantidad, char tipo){
-	int i;
-	int cantidad_inicial = juego->cantidad_obstaculos;
-
+	
 	coordenada_t posicion;
+
+	int cantidad_inicial = juego->cantidad_obstaculos;
+	int i;
+
 
 	for ( i = cantidad_inicial; i < cantidad + cantidad_inicial; i++){
 		juego->obstaculos[i].tipo = tipo; 
@@ -394,17 +397,17 @@ void agregar_obstaculos (juego_t* juego, int cantidad, char tipo){
 			posicion = posicion_aleatoria();
 		} while(!esta_posicion_libre(*juego, posicion ));
 
-		juego->cantidad_obstaculos++;	
-
 		juego->obstaculos[i].posicion = posicion;
 		juego->obstaculos[i].visible = VISIBILIDAD_DEFECTO;
+		
+		juego->cantidad_obstaculos++;	
 
 	}
 }
 
 
 bool esta_posicion_libre(juego_t juego, coordenada_t posicion){
-	int i;
+	int i = 0;
 	bool esta_libre = true;
 
 	if (es_misma_posicion(juego.personaje.posicion, posicion)){
@@ -414,7 +417,6 @@ bool esta_posicion_libre(juego_t juego, coordenada_t posicion){
 		esta_libre = false;
 
 	} else {
-		i = 0;
 
 		while(esta_libre && i < juego.cantidad_obstaculos){
 			
@@ -440,22 +442,23 @@ bool esta_posicion_libre(juego_t juego, coordenada_t posicion){
 
 
 void agregar_recolectables (juego_t* juego, int cantidad, char tipo){
-	int i;
-	int cantidad_inicial = juego->cantidad_herramientas;
-
+	
 	coordenada_t posicion;
 
+	int cantidad_inicial = juego->cantidad_herramientas;
+	int i;
+
+
 	for ( i = cantidad_inicial; i < cantidad + cantidad_inicial; i++){
-		juego->herramientas[i].tipo = tipo; 
-		juego->cantidad_herramientas++;
 
 		do {
 			posicion = posicion_aleatoria();
 		} while(!esta_posicion_libre(*juego, posicion));
 
-		juego->herramientas[i].posicion = posicion;	
 		juego->herramientas[i].visible = VISIBILIDAD_DEFECTO;
-
+		juego->herramientas[i].posicion = posicion;	
+		juego->herramientas[i].tipo = tipo; 
+		juego->cantidad_herramientas++;
 	}	
 }
 
@@ -576,6 +579,8 @@ void mostrar_matriz(char matriz[MAX_FILAS][MAX_COLUMNAS]){
  */
 void realizar_jugada(juego_t* juego, char jugada){
 
+	//mostrar_todas_posiciones(*juego);
+
 	coordenada_t posicion = juego->personaje.posicion;
 	
 	double tiempo_sin_obstaculos = tiempo_actual();
@@ -585,29 +590,22 @@ void realizar_jugada(juego_t* juego, char jugada){
 	switch (jugada){
 
 		case MOVERSE_ARRIBA:
-		
-			posicion = posicion_hacia(posicion, MOVERSE_ARRIBA);
-			moverse_hacia(juego,posicion, MOVERSE_ARRIBA);
 
+			moverse_hacia(juego,posicion, MOVERSE_ARRIBA);
 			break;
 
 		case MOVERSE_ABAJO:
 
-			posicion = posicion_hacia(posicion, MOVERSE_ABAJO);
 			moverse_hacia(juego,posicion, MOVERSE_ABAJO);
-
 			break;
 
 		case MOVERSE_IZQUIERDA:
 
-			posicion = posicion_hacia(posicion, MOVERSE_IZQUIERDA);
 			moverse_hacia(juego,posicion, MOVERSE_IZQUIERDA);
-
 			break;
 
 		case MOVERSE_DERECHA:
 		
-			posicion = posicion_hacia(posicion, MOVERSE_DERECHA);
 			moverse_hacia(juego,posicion, MOVERSE_DERECHA);
 
 			break;		
@@ -635,6 +633,8 @@ void realizar_jugada(juego_t* juego, char jugada){
 	
 		default:
 			break;
+
+	//mostrar_todas_posiciones(*juego);
 	}
 }
 
@@ -654,16 +654,23 @@ coordenada_t posicion_hacia(coordenada_t posicion, char direccion){
 }
 
 
-void moverse_hacia(juego_t* juego, coordenada_t nueva_posicion, char direccion){
+void moverse_hacia(juego_t* juego, coordenada_t posicion_nueva, char direccion){
 	int indice_en_uso = juego->personaje.elemento_en_uso;
+	char tipo_chocado;
 
-	if(se_puede_mover(nueva_posicion)){ 
+	posicion_nueva = posicion_hacia(posicion_nueva, direccion);
+
+	if(se_puede_mover(posicion_nueva)){ 
+
 		juego->personaje.ultimo_movimiento = direccion;
-		juego->personaje.posicion = nueva_posicion;
+		juego->personaje.posicion = posicion_nueva;
 
-		if(!esta_posicion_libre(*juego, juego->personaje.posicion))
-			aplicar_efecto_de(juego);
-			
+		if(!esta_posicion_libre(*juego, juego->personaje.posicion)){
+
+			tipo_chocado = tipo_elemento_chocado(*juego, juego->personaje.posicion);
+			aplicar_efecto_de(juego, tipo_chocado, juego->personaje.posicion);	
+		}
+		
 		if (indice_en_uso != SIN_ELEMENTOS_EN_USO){
 			intentar_iluminar_con(juego,juego->personaje.mochila[indice_en_uso].tipo, indice_en_uso);
 		}
@@ -679,50 +686,89 @@ bool se_puede_mover(coordenada_t posicion){
 }
 
 
-void aplicar_efecto_de(juego_t* juego){
-	char elemento_chocado = '0';
+void aplicar_efecto_de(juego_t* juego, char tipo_chocado, coordenada_t posicion_personaje){
+
 	int indice_chocado = 0;
 
-	elemento_chocado = tipo_elemento_chocado(*juego, juego->personaje.posicion);
-
-	if (es_obstaculo(elemento_chocado))
-		aplicar_contratiempo(&(juego->personaje), elemento_chocado);
+	if (es_obstaculo(tipo_chocado))
+		aplicar_contratiempo(juego, &(juego->personaje), tipo_chocado);
 
 	else {
-		agregar_en_mochila(juego->personaje.mochila,&(juego->personaje.cantidad_elementos), elemento_chocado);
+		agregar_en_mochila(juego->personaje.mochila,&(juego->personaje.cantidad_elementos), tipo_chocado);
+
+
+		printf("Cantidad de obstaculos: %i\n", juego->cantidad_obstaculos);		
 
 		indice_chocado = indice_herramienta(*juego, juego->personaje.posicion);
+
+		printf("Cantidad de obstaculos dps de chocado: %i\n", juego->cantidad_obstaculos);
+
 		eliminar_herramienta(juego->herramientas, &(juego->cantidad_herramientas),indice_chocado);
+		
+		printf("Cantidad de obstaculos dps de eliminar_herramienta: %i\n", juego->cantidad_obstaculos);		
 	}
 }
 
-
 char tipo_elemento_chocado (juego_t juego, coordenada_t posicion){
-	int i;
-	char tipo = '0';
-	
-	for (i = 0; i < juego.cantidad_obstaculos; i++){
-		if (es_misma_posicion(juego.obstaculos[i].posicion, posicion)){
+
+	bool chocado = false;
+	char tipo;
+	int i = 0;
+
+	while(!chocado && i<juego.cantidad_obstaculos){
+
+		if(es_misma_posicion(juego.obstaculos[i].posicion, posicion)){
+
 			tipo = juego.obstaculos[i].tipo;
+			chocado = true;
+
+		} else {
+			i++;
 		}
 	}
-	
-	for (i = 0; i < juego.cantidad_herramientas; i++){
-		if (es_misma_posicion(juego.herramientas[i].posicion, posicion)){
-			tipo = juego.herramientas[i].tipo;
+
+	while(!chocado && i<juego.cantidad_herramientas){
+
+		if(es_misma_posicion(juego.herramientas[i].posicion, posicion)){
+
+			tipo = juego.obstaculos[i].tipo;
+			chocado = true;
 		}
+
+		i++;
 	}
 
 	return tipo;
 }
 
 
-bool es_obstaculo (char tipo_elemento){
-	return ((tipo_elemento == PIEDRA) || (tipo_elemento==KOALA) || (tipo_elemento ==ARBOL) );
+int indice_herramienta (juego_t juego, coordenada_t posicion){
+
+	bool chocado = false;
+	int indice = NO_HAY_ELEMENTO;
+	int i = 0;
+
+	while(!chocado && i<juego.cantidad_herramientas){
+
+		if(es_misma_posicion(juego.herramientas[i].posicion, posicion)){
+			indice = i;
+			chocado = true;
+			
+		} else {
+			i++;
+		}
+	}
+
+	return indice;
 }
 
 
-void aplicar_contratiempo (personaje_t* personaje, char contratiempo){
+bool es_obstaculo (char tipo_elemento){
+	return ((tipo_elemento == PIEDRA) || (tipo_elemento == KOALA) || (tipo_elemento == ARBOL) );
+}
+
+
+void aplicar_contratiempo (juego_t* juego, personaje_t* personaje, char contratiempo){
 
 	if (contratiempo == PIEDRA){
 		personaje->tiempo_perdido += tropezar_con_piedra(personaje->tipo);
@@ -731,21 +777,19 @@ void aplicar_contratiempo (personaje_t* personaje, char contratiempo){
 		personaje->tiempo_perdido += trepar_arbol(personaje->tipo);
 
 	} else {
-		tropezar_con_sekoalaz(personaje);
-
+		tropezar_con_sekoalaz(juego, personaje);
 	}
 }
 
 
 double tropezar_con_piedra(char tipo_personaje){
-	double tiempo_retraso = -1.0;
+	double tiempo_retraso = 0.0;
 
 	if(tipo_personaje!=POLAR){
 		tiempo_retraso = TIEMPO_PIEDRA;
 
 	} else {
 		tiempo_retraso = TIEMPO_EVADIR_PIEDRA;
-
 	}
 
 	return tiempo_retraso;
@@ -753,32 +797,87 @@ double tropezar_con_piedra(char tipo_personaje){
 
 
 double trepar_arbol(char tipo_personaje){
-	double tiempo_retraso = -1.0;
+	double tiempo_retraso = 0.0;
 
 	if(tipo_personaje!=PARDO){
 		tiempo_retraso = TIEMPO_TREPAR;
 
 	} else {
 		tiempo_retraso = TIEMPO_TREPAR_RAPIDO;
-
 	}
 
 	return tiempo_retraso;
 }
 
 
-void tropezar_con_sekoalaz (personaje_t* personaje){
+void tropezar_con_sekoalaz (juego_t* juego,personaje_t* personaje){
+	char tipo_chocado = '0';
+	coordenada_t posicion;
+
 	printf("Sekoalaz Chocado\n");
-	personaje->posicion = posicion_inicial_personaje();
+
+	if(!esta_columna_ocupada(*juego, COLUMNA_INICIAL)){
+
+		do{
+			posicion = posicion_inicial_personaje();
+
+		} while(!esta_posicion_libre(*juego, posicion));
+
+	} else {
+		posicion = posicion_aleatoria();
+
+	}
+
+	personaje->posicion = posicion;
+}
+
+
+bool esta_columna_ocupada(juego_t juego, int columna){
+	bool ocupada = false;
+
+	int cantidad_posiciones = 0;
+	int i = 0;
+
+	if (juego.amiga_chloe.col == columna){
+		cantidad_posiciones++;
+	}
+
+	while(!ocupada && i < juego.cantidad_obstaculos){
+			
+		if(juego.obstaculos[i].posicion.col == columna){
+			cantidad_posiciones++;
+		}
+
+		if(cantidad_posiciones == MAX_FILAS){
+			ocupada = true;
+		}
+		i++;
+	}
+
+	i = 0;
+	
+	while(!ocupada && i < juego.cantidad_herramientas){
+			
+		if(juego.herramientas[i].posicion.col == columna){
+			cantidad_posiciones++;
+		}
+
+		if(cantidad_posiciones == MAX_FILAS){
+			ocupada = true;
+		}
+		i++;
+	}
+
+	return ocupada;
 }
 
 
 void agregar_en_mochila (elemento_mochila_t mochila[MAX_HERRAMIENTAS], int* cantidad_herramientas , char recolectable){
 
-	if (recolectable == PILA)
+	if (recolectable == PILA){
 		mochila[0].movimientos_restantes+=MOVIMIENTOS_PILAS;
 
-	else if (recolectable == VELA){
+	}else if (recolectable == VELA){
 
 		mochila[*cantidad_herramientas].tipo = VELA;
 		mochila[*cantidad_herramientas].movimientos_restantes = MOVIMIENTOS_VELAS;
@@ -792,20 +891,6 @@ void agregar_en_mochila (elemento_mochila_t mochila[MAX_HERRAMIENTAS], int* cant
 
 		(*cantidad_herramientas)++;
 	}
-}
-
-
-int indice_herramienta (juego_t juego, coordenada_t posicion){
-	int indice = 0;
-	int i;
-
-	for(i = 0; i < juego.cantidad_herramientas; i++){
-		if ( (juego.herramientas[i].posicion.fil == posicion.fil) && (juego.herramientas[i].posicion.col == posicion.col) ){
-			indice = i;
-		}
-	}	
-
-	return indice;
 }
 
 
@@ -1126,14 +1211,18 @@ bool hay_bengala_activa (personaje_t personaje, int elemento_en_uso){
 
 
 int obtener_posicion_mochila(elemento_mochila_t mochila[MAX_HERRAMIENTAS], char elemento, int cantidad_herramientas){
+	bool encontrado = false;
 	int i = 0;
 	int indice = NO_HAY_ELEMENTO;
-	while((!es_herramienta_buscada(mochila[i], elemento)) && (i<cantidad_herramientas) ){
-		i++;
-	}
 
-	if (mochila[i].tipo == elemento){
-		indice = i;
+	while(!encontrado){
+		
+		if((es_herramienta_buscada(mochila[i], elemento)) && (i<cantidad_herramientas) ){
+			encontrado = true;
+			indice = i;
+		} else {
+			i++;
+		}
 	}
 
 	return indice;
