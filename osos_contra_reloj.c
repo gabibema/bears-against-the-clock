@@ -662,29 +662,32 @@ char tipo_elemento_chocado (juego_t juego, coordenada_t posicion){
 	int i = 0, j = 0;
 	char tipo = '0';
 
-	while(!chocado && i<juego.cantidad_obstaculos){
-
-		if(es_misma_posicion(juego.obstaculos[i].posicion, posicion)){
-
-			tipo = juego.obstaculos[i].tipo;
-			chocado = true;
-		}
-		i++;
-	}
-
-	while(!chocado && j<juego.cantidad_herramientas){
-
-		if(es_misma_posicion(juego.herramientas[j].posicion, posicion)){
-
-			tipo = juego.herramientas[j].tipo;
-			chocado = true;
-		}
-		j++;
-	}
-
 	if (es_misma_posicion(juego.personaje.posicion, juego.amiga_chloe)){
 		tipo = CHLOE;
+		
+	} else {
+
+		while(!chocado && i<juego.cantidad_obstaculos){
+
+			if(es_misma_posicion(juego.obstaculos[i].posicion, posicion)){
+
+				tipo = juego.obstaculos[i].tipo;
+				chocado = true;
+			}
+			i++;
+		}
+
+		while(!chocado && j<juego.cantidad_herramientas){
+
+			if(es_misma_posicion(juego.herramientas[j].posicion, posicion)){
+
+				tipo = juego.herramientas[j].tipo;
+				chocado = true;
+			}
+			j++;
+		}
 	}
+
 
 	return tipo;
 }

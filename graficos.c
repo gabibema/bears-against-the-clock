@@ -11,8 +11,8 @@
 #define CYAN "\e[36m"
 #define BLANCO "\e[37m"
 
-#define SEPARADOR_1_INICIO "\t\t\t╔══════════════════════════════════════════╗\n"
-#define SEPARADOR_1_FIN "\t\t\t╚══════════════════════════════════════════╝\n"
+#define SEPARADOR_1_INICIO "\t\t\t"AMARILLO"╔══════════════════════════════════════════╗"AMARILLO"\n"
+#define SEPARADOR_1_FIN "\t\t\t"AMARILLO"╚══════════════════════════════════════════╝"AMARILLO"\n"
 #define SEPARADOR_MENSAJE "〔═▲═〕"
 
 #define MAX_MENSAJE 256
