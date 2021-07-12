@@ -22,8 +22,8 @@ const double TIEMPO_TOTAL = 120.0;
 
 void pedir_jugada(char* jugada){
 
-	mostrar_opciones();
-	//printf("Ingresa \n \t*-> W: Para moverte arriba.\n \t*-> A: Para moverte a la izquierda \n\t*-> S: Para moverte abajo. \n \t*-> D: Para moverte a la derecha. \n \t*-> L: Para encender una linterna. \n \t*-> V: Para encender una vela.  \n \t*-> E: Para encender la bengala. \n \t*-> T: Para ver el tiempo restante.  \n");
+	//mostrar_opciones();
+
   	printf("Ingrese un carácter válido para realizar la jugada: ");
 	scanf(" %c", jugada);
 
@@ -52,7 +52,7 @@ int main(){
 	do{
 		pedir_jugada(&(ultima_jugada));
 		
-		system("clear");
+		//system("clear");
 		realizar_jugada(&juego, ultima_jugada);
 
 		mostrar_juego(juego);

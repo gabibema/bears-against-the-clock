@@ -475,7 +475,7 @@ void cargar_posiciones_visibles (char tablero[MAX_FILAS][MAX_COLUMNAS], juego_t 
 	int i;
 
 	
-	if( (juego.chloe_visible) || (puede_usar_gps(juego.personaje.tipo, juego.personaje.tiempo_perdido) ) ){
+	if( (juego.chloe_visible)){
 		tablero[juego.amiga_chloe.fil][juego.amiga_chloe.col] = CHLOE;
 	}
 
@@ -591,15 +591,15 @@ void mover_hacia(juego_t* juego, coordenada_t posicion, char direccion){
 		if(!esta_posicion_libre(*juego, posicion)){
 			
 			tipo_chocado = tipo_elemento_chocado(*juego, posicion);
+
+			printf("Tipo CHOCADO: %c", tipo_chocado);
 			chocar_con(juego, tipo_chocado, posicion);	
 		}
 		
-		
-		juego->personaje.posicion = posicion;
-		
-		/*if (tipo_chocado!=KOALA){
+
+		if (tipo_chocado!=KOALA){
 			juego->personaje.posicion = posicion;		
-		}*/
+		}
 
 		if (indice_en_uso != SIN_ELEMENTOS_EN_USO){
 			intentar_iluminar_con(juego,juego->personaje.mochila[indice_en_uso].tipo, indice_en_uso);
@@ -723,8 +723,16 @@ void aplicar_contratiempo (juego_t* juego, char contratiempo){
 	if (contratiempo == PIEDRA){
 		juego->personaje.tiempo_perdido += tiempo_piedra(juego->personaje.tipo);
 
+		if(puede_usar_gps(juego->personaje.tipo, juego->personaje.tiempo_perdido)){
+			juego->chloe_visible = true;
+		}
+
     } else if (contratiempo == ARBOL){
 		juego->personaje.tiempo_perdido += tiempo_arbol(juego->personaje.tipo);
+
+		if(puede_usar_gps(juego->personaje.tipo, juego->personaje.tiempo_perdido)){
+			juego->chloe_visible = true;
+		}
 
 	} else {
 		tropezar_con_sekoalaz(juego);
@@ -823,7 +831,7 @@ bool esta_columna_ocupada(juego_t juego, int columna){
 
 
 bool es_herramienta(char tipo_elemento){
-	return ( (tipo_elemento == VELA ) || (tipo_elemento == LINTERNA) || (tipo_elemento == BENGALA) );
+	return ( (tipo_elemento == VELA ) || (tipo_elemento == PILA) || (tipo_elemento == BENGALA) );
 }
 
 void agregar_en_mochila (elemento_mochila_t mochila[MAX_HERRAMIENTAS], int* cantidad_herramientas , char recolectable){
@@ -833,18 +841,20 @@ void agregar_en_mochila (elemento_mochila_t mochila[MAX_HERRAMIENTAS], int* cant
 
 	}else if (recolectable == VELA){
 
-		mochila[*cantidad_herramientas].tipo = VELA;
-		mochila[*cantidad_herramientas].movimientos_restantes = MOVIMIENTOS_VELAS;
+		mochila[(*cantidad_herramientas)].tipo = VELA;
+		mochila[(*cantidad_herramientas)].movimientos_restantes = MOVIMIENTOS_VELAS;
 
 		(*cantidad_herramientas)++;
 
 	} else {
 
-		mochila[*cantidad_herramientas].tipo = BENGALA;
-		mochila[*cantidad_herramientas].movimientos_restantes= DURACION_BENGALAS;
+		mochila[(*cantidad_herramientas)].tipo = BENGALA;
+		mochila[(*cantidad_herramientas)].movimientos_restantes= DURACION_BENGALAS;
 
 		(*cantidad_herramientas)++;
 	}
+
+	printf("Herramienta agregada %c con %i movimientos", mochila[(*cantidad_herramientas)-1].tipo, mochila[(*cantidad_herramientas)-1].movimientos_restantes);
 }
 
 
