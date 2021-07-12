@@ -4,6 +4,7 @@
 
 #include "test_de_personalidad.h"
 #include "osos_contra_reloj.h"
+#include "graficos.h"
 #include "utiles.h"
 
 const int JUEGO_TERMINADO = -1;
@@ -19,13 +20,10 @@ const double TIEMPO_TOTAL = 120.0;
 #define TIEMPO_RESTANTE 'T'
 
 
-bool es_jugada_valida (char jugada){
-	return ( (jugada==MOVERSE_ARRIBA)|| (jugada==MOVERSE_ABAJO)||(jugada==MOVERSE_IZQUIERDA)||(jugada==MOVERSE_DERECHA)||(jugada==ENCENDER_LINTERNA)||(jugada==ENCENDER_VELA)||(jugada==ENCENDER_BENGALA)||(jugada==TIEMPO_RESTANTE));
-}
-
-
 void pedir_jugada(char* jugada){
-	printf("Ingresa \n \t*-> W: Para moverte arriba.\n \t*-> A: Para moverte a la izquierda \n\t*-> S: Para moverte abajo. \n \t*-> D: Para moverte a la derecha. \n \t*-> L: Para encender una linterna. \n \t*-> V: Para encender una vela.  \n \t*-> E: Para encender la bengala. \n \t*-> T: Para ver el tiempo restante.  \n");
+
+	mostrar_opciones();
+	//printf("Ingresa \n \t*-> W: Para moverte arriba.\n \t*-> A: Para moverte a la izquierda \n\t*-> S: Para moverte abajo. \n \t*-> D: Para moverte a la derecha. \n \t*-> L: Para encender una linterna. \n \t*-> V: Para encender una vela.  \n \t*-> E: Para encender la bengala. \n \t*-> T: Para ver el tiempo restante.  \n");
   	printf("Ingrese un carácter válido para realizar la jugada: ");
 	scanf(" %c", jugada);
 
@@ -36,10 +34,6 @@ void pedir_jugada(char* jugada){
 }
 
 
-bool chloe_fue_encontrada (juego_t juego){
-	return ( (juego.personaje.posicion.col == juego.amiga_chloe.col) && ( juego.personaje.posicion.fil == juego.amiga_chloe.fil) );
-}
-
 int main(){
 	juego_t juego;
 	char personalidad_detectada = '0';
@@ -48,7 +42,7 @@ int main(){
 	srand ((unsigned)time(NULL));
 
     test_de_personalidad(&personalidad_detectada);
-	//system("clear");
+	system("clear");
 	
     inicializar_juego(&juego, personalidad_detectada);
 
@@ -58,9 +52,8 @@ int main(){
 	do{
 		pedir_jugada(&(ultima_jugada));
 		
-		//system("clear");
+		system("clear");
 		realizar_jugada(&juego, ultima_jugada);
-		printf("Cantidad de obstaculos: %i\n", juego.cantidad_obstaculos);
 
 		mostrar_juego(juego);
 
@@ -68,7 +61,7 @@ int main(){
 
 	system("clear");
 
-	if ( (tiempo_actual() + juego.personaje.tiempo_perdido >= TIEMPO_TOTAL) && (chloe_fue_encontrada(juego)) ){
+	if ( (tiempo_actual() + juego.personaje.tiempo_perdido <= TIEMPO_TOTAL)){
 		printf("\tFELICIDADES GANASTE!!!");
 	} else{
 		printf("\tCHLOE SE QUEDÓ SIN SU INHALADOR :(");

@@ -50,26 +50,26 @@ int indice_obstaculo (juego_t juego, coordenada_t posicion){
 }*/
 
 
-bool es_herramienta (char tipo_elemento){
-	return ((tipo_elemento == PILA) || (tipo_elemento==VELA) || (tipo_elemento ==BENGALA) );
-}
+// bool es_herramienta (char tipo_elemento){
+// 	return ((tipo_elemento == PILA) || (tipo_elemento==VELA) || (tipo_elemento ==BENGALA) );
+// }
 
 
-void cargar_posiciones_reales (char tablero[MAX_FILAS][MAX_COLUMNAS], juego_t juego){
+// void cargar_posiciones_reales (char tablero[MAX_FILAS][MAX_COLUMNAS], juego_t juego){
 
-	int i;
+// 	int i;
 
-	tablero[juego.personaje.posicion.fil][juego.personaje.posicion.col] = juego.personaje.tipo;
+// 	tablero[juego.personaje.posicion.fil][juego.personaje.posicion.col] = juego.personaje.tipo;
 
-	tablero[juego.amiga_chloe.fil][juego.amiga_chloe.col] = CHLOE;
+// 	tablero[juego.amiga_chloe.fil][juego.amiga_chloe.col] = CHLOE;
 	
 
-	for (i = 0; i< juego.cantidad_obstaculos; i++){
-		tablero[juego.obstaculos[i].posicion.fil][juego.obstaculos[i].posicion.col] = juego.obstaculos[i].tipo;
-	}	
+// 	for (i = 0; i< juego.cantidad_obstaculos; i++){
+// 		tablero[juego.obstaculos[i].posicion.fil][juego.obstaculos[i].posicion.col] = juego.obstaculos[i].tipo;
+// 	}	
 	
-	for (i = 0; i< juego.cantidad_herramientas; i++){
-		tablero[juego.herramientas[i].posicion.fil][juego.herramientas[i].posicion.col] = juego.herramientas[i].tipo;
+// 	for (i = 0; i< juego.cantidad_herramientas; i++){
+// 		tablero[juego.herramientas[i].posicion.fil][juego.herramientas[i].posicion.col] = juego.herramientas[i].tipo;
 
-	}
-}
+// 	}
+// }
