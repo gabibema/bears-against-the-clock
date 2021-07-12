@@ -47,6 +47,7 @@
 #define ENCENDIDO 'O'
 #define MOVERSE 'M'
 #define NADA '-'
+#define BENGALA_EN_USO 'I'
 
 #define MAX_FILAS 20
 #define MAX_COLUMNAS 30
@@ -60,6 +61,6 @@ void mostrar_tiempo(double tiempo);
 
 void mostrar_matriz(char matriz[MAX_FILAS][MAX_COLUMNAS]);
 
-void mostrar_datos(int cantidad_obstaculos, int cantidad_herramientas, int cantidad_elementos, char tipo, int fil, int col);
+void mostrar_datos(int cantidad_obstaculos, int cantidad_herramientas, int cantidad_elementos);
 
 #endif /* __GRAFICOS_H__ */

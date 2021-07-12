@@ -169,37 +169,6 @@ bool chloe_fue_encontrada(coordenada_t posicion_personaje, coordenada_t amiga_ch
 bool es_jugada_valida (char jugada);
 
 
-//BREAKKKKKKKKKKKK
-//BORRAR
-void mostrar_todas_posiciones(juego_t juego){
-	int i;
-	
-	printf("PJ: %c , FIL: %i COL: %i\n", juego.personaje.tipo, juego.personaje.posicion.fil, juego.personaje.posicion.col);
-
-	printf("PJ: %c , FIL: %i COL: %i\n", CHLOE, juego.amiga_chloe.fil, juego.amiga_chloe.col);
-
-	i = 0;
-
-		while(i < juego.cantidad_obstaculos){
-			
-			printf("OBS: %c FIL: %i COL: %i \n", juego.obstaculos[i].tipo,juego.obstaculos[i].posicion.fil,juego.obstaculos[i].posicion.col);
-
-			i++;
-		}
-
-	i = 0;
-
-		while(i < juego.cantidad_herramientas){
-			printf("OBS: %c FIL: %i COL: %i \n", juego.herramientas[i].tipo,juego.herramientas[i].posicion.fil,juego.herramientas[i].posicion.col);
-			i++;
-		}
-}
-
-
-/*
- * Inicializará el juego, cargando toda la información inicial
- * y los datos del personaje. 
- */
 void inicializar_juego(juego_t* juego, char tipo_personaje){
 
 	juego->cantidad_obstaculos = 0;
@@ -216,15 +185,13 @@ void inicializar_juego(juego_t* juego, char tipo_personaje){
 	agregar_recolectables(juego, &(juego->cantidad_herramientas), MAX_PILAS_INICIO, PILA);
 	agregar_recolectables(juego, &(juego->cantidad_herramientas), MAX_VELAS_INICIO, VELA);
 	agregar_recolectables(juego, &(juego->cantidad_herramientas), MAX_BENGALAS_INICIO, BENGALA);
-
-	//printf("Obstáculos %i\n", juego->cantidad_obstaculos);
-	//printf("Herramientas %i\n", juego->cantidad_herramientas);
-	//printf("Cantidad Mochila %i\n", juego->personaje.cantidad_elementos);
-
-	//mostrar_todas_posiciones(*juego);
 }
 
 
+/*
+ * PRE: tipo_personaje sea PANDA, PARDO o POLAR
+ * POS: Todos los campos del personaje serán válidos
+ */ 
 void inicializar_personaje(personaje_t* personaje, char tipo_personaje){
 
 	personaje->tipo = tipo_personaje;
@@ -240,8 +207,8 @@ void inicializar_personaje(personaje_t* personaje, char tipo_personaje){
 
 
 /*
- * PRE:
- * POS: 
+ * PRE: -
+ * POS: Devuelve una coordenada aleatoria teniendo en cuenta la COLUMNA_INICIAL del personaje
  */ 
 coordenada_t posicion_inicial_personaje(){
 	
@@ -255,8 +222,8 @@ coordenada_t posicion_inicial_personaje(){
 
 
 /*
- * PRE:
- * POS: 
+ * PRE: cantidad de elementos por referencia sea 0 o mayor, tipo_personaje sea PARDO, PANDA o POLAR
+ * POS: agrega en la mochila las herramientas correspondientes a cada oso
  */ 
 void obtener_kit_inicial_personaje(elemento_mochila_t mochila[MAX_HERRAMIENTAS], int* cantidad_elementos,char tipo_personaje){
 
@@ -273,6 +240,10 @@ void obtener_kit_inicial_personaje(elemento_mochila_t mochila[MAX_HERRAMIENTAS],
 }  
 
 
+/*
+ * PRE: El tope sea 0 o mayor, movimientos linterna sea 0 o mayor, las cantidades sea 0 o mayor.
+ * POS: Agrega las herramientas en la mochila
+ */ 
 void generar_kit_oso (elemento_mochila_t mochila[MAX_HERRAMIENTAS], int* cantidad_elementos, int movimientos_linterna, int cantidad_velas, int cantidad_bengalas){
 	
 	int i;
@@ -300,6 +271,10 @@ void generar_kit_oso (elemento_mochila_t mochila[MAX_HERRAMIENTAS], int* cantida
 }
 
 
+/*
+ * PRE: La posicion del personaje sea válida
+ * POS: Chloe tendrá una posición válida en el mapa y tendrá la VISIBILIDAD_DEFECTO
+ */ 
 void inicializar_chloe (bool* chloe_visible, coordenada_t* amiga_chloe, coordenada_t posicion_personaje){
 
 	do{ 
@@ -312,6 +287,10 @@ void inicializar_chloe (bool* chloe_visible, coordenada_t* amiga_chloe, coordena
 }
 
 
+/*
+ * PRE: -
+ * POS: Devuelve una posicion random dentro de los límites del mapa
+ */ 
 coordenada_t posicion_aleatoria(){
 	coordenada_t posicion;
 	
@@ -322,6 +301,10 @@ coordenada_t posicion_aleatoria(){
 }
 
 
+/*
+ * PRE: -
+ * POS: Devuelve true si las dos coordenadas son iguales
+ */ 
 bool es_misma_posicion(coordenada_t posicion_1, coordenada_t posicion_2){
 	
 	return ((posicion_1.fil == posicion_2.fil) && (posicion_1.col == posicion_2.col));
@@ -329,6 +312,10 @@ bool es_misma_posicion(coordenada_t posicion_1, coordenada_t posicion_2){
 }
 
 
+/*
+ * PRE: El tope sea 0 o mayor, la cantidad sea 0 o mayor, el tipo del obstáculo sea ARBOL, PIEDRA o KOALA
+ * POS: Agrega la cantidad de obstaculos en el juego
+ */ 
 void agregar_obstaculos (juego_t* juego, int* cantidad_obstaculos , int cantidad, char tipo){
 	
 	coordenada_t posicion;
@@ -351,6 +338,10 @@ void agregar_obstaculos (juego_t* juego, int* cantidad_obstaculos , int cantidad
 }
 
 
+/*
+ * PRE: Las coordenadas del personaje, Chloe, obstáculos y herramientas existentes sean válidas
+ * POS: Devuelve una poisición válida que no se superpone con las existentes
+ */ 
 coordenada_t posicion_aleatoria_libre(juego_t juego){
 
 	coordenada_t posicion;
@@ -364,6 +355,10 @@ coordenada_t posicion_aleatoria_libre(juego_t juego){
 }
 
 
+/*
+ * PRE: Las coordenadas del personaje, Chloe, obstáculos y herramientas existentes sean válidas
+ * POS: Devuelve true si la posición no se superpone con ninguna del juego, false en caso contrario
+ */ 
 bool esta_posicion_libre(juego_t juego, coordenada_t posicion){
 
 	bool esta_libre = true;
@@ -398,6 +393,10 @@ bool esta_posicion_libre(juego_t juego, coordenada_t posicion){
 }
 
 
+/*
+ * PRE: El tope sea 0 o mayor, la cantidad sea 0 o mayor, el tipo de recolectable sea VELA, PILA o BENGALA
+ * POS: Agrega la cantidad de recolectables en el juego
+ */ 
 void agregar_recolectables (juego_t* juego, int* cantidad_herramientas ,int cantidad, char tipo){
 	
 	coordenada_t posicion;
@@ -417,28 +416,6 @@ void agregar_recolectables (juego_t* juego, int* cantidad_herramientas ,int cant
 }
 
 
-
-void cargar_posiciones_reales (char tablero[MAX_FILAS][MAX_COLUMNAS], juego_t juego){
-
-	int i;
-
-	tablero[juego.amiga_chloe.fil][juego.amiga_chloe.col] = CHLOE;
-	
-
-	for (i = 0; i< juego.cantidad_obstaculos; i++){
-		tablero[juego.obstaculos[i].posicion.fil][juego.obstaculos[i].posicion.col] = juego.obstaculos[i].tipo;
-	}	
-	
-	for (i = 0; i< juego.cantidad_herramientas; i++){
-		tablero[juego.herramientas[i].posicion.fil][juego.herramientas[i].posicion.col] = juego.herramientas[i].tipo;
-
-	}
-
-	tablero[juego.personaje.posicion.fil][juego.personaje.posicion.col] = juego.personaje.tipo;
-
-}
-
-
 /*
  * Mostrará el juego por pantalla.
  * Se recomienda mostrar todo lo que sea de utilidad para el jugador.
@@ -446,19 +423,19 @@ void cargar_posiciones_reales (char tablero[MAX_FILAS][MAX_COLUMNAS], juego_t ju
 void mostrar_juego(juego_t juego){
 	char tablero[MAX_FILAS][MAX_COLUMNAS];
 
-	mostrar_datos(juego.cantidad_obstaculos, juego.cantidad_herramientas, juego.personaje.cantidad_elementos, juego.personaje.tipo, juego.personaje.posicion.fil, juego.personaje.posicion.col);
-
-
 	inicializar_matriz(tablero);
-	
-	//cargar_posiciones_reales(tablero, juego);
 	cargar_posiciones_visibles(tablero, juego);
 
+	mostrar_datos(juego.cantidad_obstaculos, juego.cantidad_herramientas, juego.personaje.cantidad_elementos);
 	mostrar_matriz(tablero);
 
 }
 
 
+/*
+ * PRE: -
+ * POS: Llena toda la matriz de VACIO
+ */ 
 void inicializar_matriz (char matriz[MAX_FILAS][MAX_COLUMNAS]){
 	int i, j;
 
@@ -470,6 +447,10 @@ void inicializar_matriz (char matriz[MAX_FILAS][MAX_COLUMNAS]){
 }
 
 
+/*
+ * PRE: Las posición del personaje, Chloe, obstáculos y herramientas estén inicializadas
+ * POS: Carga en la matriz cada elemento en su respectiva posición si es visible y al personaje
+ */ 
 void cargar_posiciones_visibles (char tablero[MAX_FILAS][MAX_COLUMNAS], juego_t juego){
 
 	int i;
@@ -496,31 +477,15 @@ void cargar_posiciones_visibles (char tablero[MAX_FILAS][MAX_COLUMNAS], juego_t 
 }
 
 
+/*
+ * PRE: -
+ * POS: Devuelve true si el tipo es PANDA y tiempo perdido es mayor o igual a 30
+ */ 
 bool puede_usar_gps(char tipo, double tiempo_perdido){
 	return ( (tipo == PANDA) && ( tiempo_perdido >= TIEMPO_GPS) );
 }
 
 
-
-/*
- * Mueve el personaje en la dirección indicada por el usuario o habilita 
- * cualquiera de las herramientas y actualiza el juego según los elementos 
- * que haya en el camino del personaje.
- * El juego quedará en un estado válido al terminar el movimiento. 
- * El movimiento será:
- * -> W: Si el personaje debe moverse para la arriba. 
- * -> A: Si el personaje debe moverse para la izquierda.
- * -> S: Si el personaje debe moverse para la abajo.
- * -> D: Si el personaje debe moverse para la derecha.
- * -> L: Si el personaje quiere encender una linterna.
- * -> V: Si el personaje quiere encender una vela. 
- * -> E: Si el personaje quiere encender la bengala.
- * -> T: Si el personaje quiere ver el tiempo restante.
- * En caso de que querer activar una herramienta, y no tenga mas movimientos, no deberá 
- * activarse ninguna ventaja. 
- * Si se aprieta una tecla de iluminación y esta ya está siendo usada, se desactivará colocando
- * el int elemento_en_uso en -1.
- */
 void realizar_jugada(juego_t* juego, char jugada){
 	
 	double tiempo_sin_obstaculos = tiempo_actual();
@@ -575,6 +540,10 @@ void realizar_jugada(juego_t* juego, char jugada){
 }
 
 
+/*
+ * PRE: La dirección sea W,A,S,D
+ * POS: Mueve al personaje si la posición está dentro de los límites del terreno y actualiza su último movimiento
+ */ 
 void mover_hacia(juego_t* juego, coordenada_t posicion, char direccion){
 
 	int indice_en_uso = juego->personaje.elemento_en_uso;
@@ -613,6 +582,10 @@ void mover_hacia(juego_t* juego, coordenada_t posicion, char direccion){
 }
 
 
+/*
+ * PRE: La direccion sea W, A, S, D
+ * POS: Devuelve la nueva posición según la dirección
+ */ 
 coordenada_t posicion_hacia(coordenada_t posicion, char direccion){
 	
 	if (direccion == MOVERSE_ARRIBA){
@@ -629,11 +602,19 @@ coordenada_t posicion_hacia(coordenada_t posicion, char direccion){
 }
 
 
+/*
+ * PRE: -
+ * POS: Devuelve true si la posición está dentro de los límites del terreno, false en caso contrario
+ */ 
 bool se_puede_mover(coordenada_t posicion){
 	return ( (( posicion.fil >= FILA_MINIMA )&&( posicion.fil < MAX_FILAS )) && (( posicion.col >= COLUMNA_MINIMA )&&( posicion.col < MAX_COLUMNAS )) );	
 }
 
 
+/*
+ * PRE: Tipo chocado sea un obstáculo o una herramienta, la posicion del personaje sea válida y el juego esté inicializado
+ * POS: Si el tipo es un obstáculo aplica su contratiempo, si es una herramienta la añade en la mochila
+ */ 
 void chocar_con(juego_t* juego, char tipo_chocado, coordenada_t posicion_personaje){
 
 	int indice_chocado = 0;
@@ -655,6 +636,11 @@ void chocar_con(juego_t* juego, char tipo_chocado, coordenada_t posicion_persona
 	}
 }
 
+
+/*
+ * PRE: El personaje esté encima de un elemento o Chloe
+ * POS: Devuelve el tipo del elemento que coincide con la posición del personaje.
+ */ 
 char tipo_elemento_chocado (juego_t juego, coordenada_t posicion){
 
 	bool chocado = false;
@@ -693,6 +679,10 @@ char tipo_elemento_chocado (juego_t juego, coordenada_t posicion){
 }
 
 
+/*
+ * PRE: Cantidad herramientas sea 0 o mayor, herramientas esté inicializada
+ * POS: Devuelve el índice de la herramienta que coincida con la posición dada, o -2 si no encuentra nada.
+ */ 
 int indice_herramienta (elemento_del_mapa_t herramientas[MAX_HERRAMIENTAS], int cantidad_herramientas, coordenada_t posicion){
 
 	bool chocado = false;
@@ -713,11 +703,19 @@ int indice_herramienta (elemento_del_mapa_t herramientas[MAX_HERRAMIENTAS], int 
 }
 
 
+/*
+ * PRE: -
+ * POS: Devuelve true si el tipo es PIEDRA, KOALA o ÁRBOL
+ */ 
 bool es_obstaculo (char tipo_elemento){
 	return ((tipo_elemento == PIEDRA) || (tipo_elemento == KOALA) || (tipo_elemento == ARBOL) );
 }
 
 
+/*
+ * PRE: El personaje haya chocado una PIEDRA, ÁRBOL o KOALA, y el contratiempo sea uno de los anteriores.
+ * POS: Aplica el contratiempo correspondiente al personaje
+ */ 
 void aplicar_contratiempo (juego_t* juego, char contratiempo){
 
 	if (contratiempo == PIEDRA){
@@ -740,6 +738,10 @@ void aplicar_contratiempo (juego_t* juego, char contratiempo){
 }
 
 
+/*
+ * PRE: -
+ * POS: Devuelve 0.0 si el personaje es POLAR, 2.0 en caso contrario
+ */ 
 double tiempo_piedra(char tipo_personaje){
 	double tiempo_retraso = 0.0;
 
@@ -754,6 +756,10 @@ double tiempo_piedra(char tipo_personaje){
 }
 
 
+/*
+ * PRE: -
+ * POS: Devuelve 0.5 si el personaje es PARDO, 1.0 en caso contrario.
+ */ 
 double tiempo_arbol(char tipo_personaje){
 	double tiempo_retraso = 0.0;
 
@@ -767,6 +773,13 @@ double tiempo_arbol(char tipo_personaje){
 	return tiempo_retraso;
 }
 
+
+/*
+ * PRE: Las posiciones del personaje, Chloe, obstáculos y herramientas estén inicializadas.
+ *      Los topes de obstáculos y herramientas sean válidos.
+ * POS: Mueve al personaje a una posición aleatoria en la COLUMNA INICIAL si hay por lo menos una posición libre
+ *		Sinó lo moverá a una posición aleatoria en el mapa libre.
+ */ 
 
 void tropezar_con_sekoalaz (juego_t* juego){
 	coordenada_t posicion;
@@ -791,6 +804,11 @@ void tropezar_con_sekoalaz (juego_t* juego){
 }
 
 
+/*
+ * PRE: Las posiciones del personaje, Chloe, obstáculos y herramientas estén inicializadas.
+ *      Los topes de obstáculos y herramientas sean válidos. La columna sea válida.
+ * POS: Devuelve true si no hay alguna posición libre en la columna, false en caso contrario.
+ */ 
 bool esta_columna_ocupada(juego_t juego, int columna){
 	
 	bool ocupada = false;
@@ -830,10 +848,19 @@ bool esta_columna_ocupada(juego_t juego, int columna){
 }
 
 
+/*
+ * PRE: -
+ * POS: Devuelve true si el elemento es VELA, PILA o BENGALA; sinó devuelve false.
+ */ 
 bool es_herramienta(char tipo_elemento){
 	return ( (tipo_elemento == VELA ) || (tipo_elemento == PILA) || (tipo_elemento == BENGALA) );
 }
 
+
+/*
+ * PRE: El tope de herramientas sea mayor o igual a 0, el recolectable sea PILA, VELA o BENGALA
+ * POS: Añade movimientos a la linterna si es pila, sinó agrega la herramienta correspondiente a la mochila.
+ */ 
 void agregar_en_mochila (elemento_mochila_t mochila[MAX_HERRAMIENTAS], int* cantidad_herramientas , char recolectable){
 
 	if (recolectable == PILA){
@@ -858,6 +885,10 @@ void agregar_en_mochila (elemento_mochila_t mochila[MAX_HERRAMIENTAS], int* cant
 }
 
 
+/*
+ * PRE: La cantidad sea mayor o igual a 1, indice sea mayor o igual a 0
+ * POS: Elimina físicamente la herramienta en la posición del índice
+ */ 
 void eliminar_herramienta(elemento_del_mapa_t herramientas[MAX_HERRAMIENTAS], int* cantidad_herramientas,int indice){
 	int indice_ultima_herramienta = (*cantidad_herramientas) -1;
 
@@ -866,6 +897,10 @@ void eliminar_herramienta(elemento_del_mapa_t herramientas[MAX_HERRAMIENTAS], in
 }
 
 
+/*
+ * PRE: La herramienta sea válida, el índice sea mayor o igual a 0
+ * POS: Si el índice tiene por lo menos un movimiento activa la herramienta
+ */ 
 void intentar_iluminar_con(juego_t* juego, char herramienta, int indice_herramienta){
 
 	if((juego->personaje.mochila[indice_herramienta].movimientos_restantes >MIN_MOVIMIENTOS) ){
@@ -883,10 +918,18 @@ void intentar_iluminar_con(juego_t* juego, char herramienta, int indice_herramie
 }
 
 
+/*
+ * PRE: La cantidad de herramientas y obstáculos sea mayor o igual a 0, el personaje esté inicializado
+ * POS: Oculta las herramientas, obstáculos y a Chloe (teniendo en cuenta si puede o no usar el gps)
+ */ 
 void ocultar_todo (juego_t* juego){
+
 	int i;
 
-	juego->chloe_visible = VISIBILIDAD_DEFECTO;
+	if (!puede_usar_gps(juego->personaje.tipo, juego->personaje.tiempo_perdido)) {
+
+		juego->chloe_visible = VISIBILIDAD_DEFECTO;
+	}
 
 	for (i = 0; i < juego->cantidad_obstaculos; i++){
 		juego->obstaculos[i].visible = VISIBILIDAD_DEFECTO;
@@ -899,6 +942,10 @@ void ocultar_todo (juego_t* juego){
 }
 
 
+/*
+ * PRE: La herramienta sea VELA, LINTERNA o BENGALA
+ * POS: Ilumina con las carácterísticas de la herramienta elegida
+ */ 
 void iluminar_con (juego_t* juego, char herramienta){
 	char direccion = '0';
 
@@ -930,12 +977,17 @@ void iluminar_con (juego_t* juego, char herramienta){
 
 	} else if (herramienta == VELA){
 		iluminar_alrededor(juego);
+
 	}else{ 
 		iluminar_con_bengala(juego);	
 	}
 }	
 
 
+/*
+ * POS: Las posiciones del personaje, Chloe y todos los elementos así como sus topes estén inicializados
+ * PRE: Ilumina todos los elementos que están arriba del personaje
+ */ 
 void iluminar_hacia_arriba(juego_t* juego){
 	int i;
 
@@ -957,12 +1009,19 @@ void iluminar_hacia_arriba(juego_t* juego){
 	}
 }
 
-
+/*
+ * PRE: -
+ * POS: Devuelve true si la posición elegida está arriba de la del personaje
+ */ 
 bool esta_arriba_de (coordenada_t posicion_personaje, coordenada_t posicion_elegida){
 	return ((posicion_elegida.col == posicion_personaje.col) && (posicion_elegida.fil < posicion_personaje.fil));
 }
 
 
+/*
+ * POS: Las posiciones del personaje, Chloe y todos los elementos así como sus topes estén inicializados
+ * PRE: Ilumina todos los elementos que están abajo del personaje
+ */ 
 void iluminar_hacia_abajo(juego_t* juego){
 
 	int i;
@@ -985,11 +1044,20 @@ void iluminar_hacia_abajo(juego_t* juego){
 	}
 }
 
+
+/*
+ * PRE: -
+ * POS: Devuelve true si la posición elegida está abajo de la del personaje
+ */ 
 bool esta_abajo_de (coordenada_t posicion_personaje, coordenada_t posicion_elegida){
 	return ((posicion_elegida.col == posicion_personaje.col) && (posicion_elegida.fil > posicion_personaje.fil));
 }
 
 
+/*
+ * POS: Las posiciones del personaje, Chloe y todos los elementos así como sus topes estén inicializados
+ * PRE: Ilumina todos los elementos que están a la izquierda del personaje
+ */ 
 void iluminar_hacia_izquierda(juego_t* juego){
 
 	int i;
@@ -1016,11 +1084,19 @@ void iluminar_hacia_izquierda(juego_t* juego){
 }
 
 
+/*
+ * PRE: -
+ * POS: Devuelve true si la posición elegida está a la izquierda de la del personaje
+ */ 
 bool esta_izquierda_de (coordenada_t posicion_personaje, coordenada_t posicion_elegida){
 	return ((posicion_elegida.col < posicion_personaje.col) && (posicion_elegida.fil == posicion_personaje.fil));
 }
 
 
+/*
+ * POS: Las posiciones del personaje, Chloe y todos los elementos así como sus topes estén inicializados
+ * PRE: Ilumina todos los elementos que están a la derecha del personaje
+ */ 
 void iluminar_hacia_derecha(juego_t* juego){
 
 	int i;
@@ -1044,11 +1120,19 @@ void iluminar_hacia_derecha(juego_t* juego){
 }
 
 
+/*
+ * PRE: -
+ * POS: Devuelve true si la posición elegida está a la derecha de la del personaje
+ */ 
 bool esta_derecha_de (coordenada_t posicion_personaje, coordenada_t posicion_elegida){
 	return ((posicion_elegida.col > posicion_personaje.col) && (posicion_elegida.fil == posicion_personaje.fil));
 }
 
 
+/*
+ * POS: Las posiciones del personaje, Chloe y todos los elementos así como sus topes estén inicializados
+ * PRE: Ilumina todos los elementos que están alrededor del personaje
+ */ 
 void iluminar_alrededor(juego_t* juego){
 	int i;
 
@@ -1072,6 +1156,10 @@ void iluminar_alrededor(juego_t* juego){
 }
 
 
+/*
+ * PRE: -
+ * POS: Devuelve true si la posición elegida está alrededor de la del personaje
+ */ 
 bool esta_alrededor(coordenada_t posicion_personaje, coordenada_t posicion_elegida){
 	bool alrededor = false;
 
@@ -1085,11 +1173,19 @@ bool esta_alrededor(coordenada_t posicion_personaje, coordenada_t posicion_elegi
 }
 
 
+/*
+ * PRE: -
+ * POS: Devuelve la distancia Manhattan entre las dos coordenadas
+ */ 
 int distancia_mahattan (coordenada_t posicion1, coordenada_t posicion2){
 	return (( abs(posicion2.col-posicion1.col) + abs(posicion2.fil-posicion1.fil) ));
 }
 
 
+/*
+ * PRE: -
+ * POS: Devuelve true si las posiciones están en diagonal
+ */ 
 bool estan_en_diagonal(coordenada_t posicion1, coordenada_t posicion2){
 	bool diagonal = false;
 
@@ -1103,6 +1199,10 @@ bool estan_en_diagonal(coordenada_t posicion1, coordenada_t posicion2){
 }
 
 
+/*
+ * POS: Las posiciones del personaje, Chloe y todos los elementos así como sus topes estén inicializados
+ * PRE: Enciende una bengala en una posición aleatoria del mapa e ilumina todos los elementos que están dentro de su rango
+ */ 
 void iluminar_con_bengala(juego_t* juego){
 	
 	coordenada_t posicion_bengala;
@@ -1130,6 +1230,11 @@ void iluminar_con_bengala(juego_t* juego){
 }
 
 
+/*
+ * PRE: La herramienta sea válida, la mochila esté inicializada así como su tope
+ * POS: Si hay una bengala activa, intenta ilumina con la bengala.
+ *		Sinó intenta encender la herramienta elegida
+ */ 
 void usar_herramienta(juego_t* juego, char herramienta){
 	
 	int indice = 0;
@@ -1156,18 +1261,25 @@ void usar_herramienta(juego_t* juego, char herramienta){
 
 	} else {
 
-		printf(" %s\t\t\t%s ¡Hay una bengala activa! %s\n %s\n", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
-		
+		mostrar_mensaje_usuario(BENGALA_EN_USO, NADA);
 		intentar_iluminar_con(juego, BENGALA, juego->personaje.elemento_en_uso);
 	}
 }
 
 
+/*
+ * PRE: elemento en uso mayor o igual a 0 , o -1 
+ * POS: Devuelve true si el elemento en uso no es -1 y la herramienta en uso es BENGALA, false en caso de que no se cumpla
+ */ 
 bool hay_bengala_activa (elemento_mochila_t mochila[MAX_HERRAMIENTAS], int elemento_en_uso){
 	return ( (elemento_en_uso!= SIN_ELEMENTOS_EN_USO) && (  mochila[elemento_en_uso].tipo == BENGALA ));
 }
 
 
+/*
+ * PRE: 
+ * POS: 
+ */ 
 int obtener_posicion_mochila(elemento_mochila_t mochila[MAX_HERRAMIENTAS], char elemento, int cantidad_herramientas){
 	bool encontrado = false;
 

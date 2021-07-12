@@ -39,11 +39,15 @@ typedef struct juego {
 	coordenada_t amiga_chloe;
 	bool chloe_visible;
 } juego_t;
+
+
 /*
  * Inicializará el juego, cargando toda la información inicial
  * y los datos del personaje.
  */
 void inicializar_juego(juego_t* juego, char tipo_personaje);
+
+
 /*
  * Recibe un juego con todas sus estructuras válidas.
  *
@@ -52,6 +56,8 @@ void inicializar_juego(juego_t* juego, char tipo_personaje);
  * -> 0 si el estado es jugando.
  * -> -1 si el estado es terminado.
  */
+
+
 int estado_juego(juego_t juego);
 /*
  * Mueve el personaje en la dirección indicada por el usuario o habilita
@@ -72,17 +78,23 @@ int estado_juego(juego_t juego);
  * Si se aprieta una tecla de iluminación y esta ya está siendo usada, se desactivará colocando
  * el int elemento_en_uso en -1.
  */
+
+
 void realizar_jugada(juego_t* juego, char jugada);
 /*
  * Mostrará el juego por pantalla.
  * Se recomienda mostrar todo lo que sea de utilidad para el jugador.
  */
+
+
 void mostrar_juego(juego_t juego);
+
 
 /*
  * Devolvera true en caso de ser una jugada valida (W,A,S,D,L,V,E o T)
  * Devolvera false en caso contrario.
  */
- bool es_jugada_valida(char jugada);
+bool es_jugada_valida(char jugada);
+
  
 #endif /* __OSOS_CONTRA_RELOJ_H__ */

@@ -95,6 +95,11 @@ void mostrar_mensaje_usuario(char evento, char comentario){
         } else if (evento == BENGALA){   
 
             printf(" %s\t\t\t%s ¡ERROR! No tienes bengalas %s\n %s\n", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
+            
+        } else if ( evento == BENGALA_EN_USO){ 
+
+	        printf(" %s\t\t\t%s ¡Hay una bengala activa! %s\n %s\n", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);       
+
         } else {
 
             printf(" %s\t\t\t%s ¡ERROR! Movimiento no posible%s\n %s\n", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
@@ -151,7 +156,7 @@ void mostrar_matriz(char matriz[MAX_FILAS][MAX_COLUMNAS]){
 
 
 //╗ ═ ╝║ ╔  ╚
-void mostrar_datos(int cantidad_obstaculos, int cantidad_herramientas, int cantidad_elementos, char tipo, int fil, int col){
+void mostrar_datos(int cantidad_obstaculos, int cantidad_herramientas, int cantidad_elementos){
 
     printf("\t\t\t\t\t\t\t\t╔═══════════════════╗\n");
     printf("\t\t\t\t\t\t\t\t║ OSOS CONTRA RELOJ ║\n");
