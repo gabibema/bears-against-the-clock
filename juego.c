@@ -20,9 +20,13 @@ const double TIEMPO_TOTAL = 120.0;
 #define TIEMPO_RESTANTE 'T'
 
 
+/*
+ * PRE: -
+ * POS: Pide una jugada al usuario hasta que sea válida
+ */ 
 void pedir_jugada(char* jugada){
 
-	//mostrar_opciones();
+	mostrar_opciones();
 
   	printf("Ingrese un carácter válido para realizar la jugada: ");
 	scanf(" %c", jugada);
@@ -45,17 +49,12 @@ int main(){
 	system("clear");
 	
     inicializar_juego(&juego, personalidad_detectada);
-
-	mostrar_juego(juego);
 	iniciar_cronometro();
 
 	do{
-		pedir_jugada(&(ultima_jugada));
-		
-		//system("clear");
-		realizar_jugada(&juego, ultima_jugada);
-
 		mostrar_juego(juego);
+		pedir_jugada(&(ultima_jugada));
+		realizar_jugada(&juego, ultima_jugada);
 
 	} while (estado_juego(juego)!=JUEGO_TERMINADO);
 

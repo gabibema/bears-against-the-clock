@@ -30,14 +30,15 @@ const char CHLOE= 'C';
 const int MAX_ARBOLES_INICIO = 350;
 const int MAX_PIEDRAS_INICIO = 80;
 const int MAX_KOALAS_INICIO = 1;
+const int KOALAS_POR_LINTERNA = 1;
 
 const int MAX_PILAS_INICIO = 30;
 const int MAX_VELAS_INICIO = 30;
 const int MAX_BENGALAS_INICIO = 10;
 
+const int INDICE_LINTERNA = 0;
 const int MOVIMIENTOS_PILAS =  5;
 
-const int INDICE_LINTERNA = 0;
 const int MOVIMIENTOS_LINTERNA_EXPERTO = 15;
 const int MOVIMIENTOS_LINTERNA_NORMAL = 10;
 
@@ -47,9 +48,8 @@ const int MOVIMIENTOS_VELAS = 5;
 
 const int CANTIDAD_BENGALAS_FIESTA = 2;
 const int CANTIDAD_BENGALAS_NORMAL = 0;
+const int MAX_RANGO_BENGALA = 3;
 const int DURACION_BENGALAS = 3;
-const int MAX_RANGO_BENGALA = 2;
-const int KOALAS_POR_LINTERNA = 1;
 
 const char VACIO = '-';
 const int COLUMNA_INICIAL = 0;
@@ -79,10 +79,6 @@ const int MIN_MOVIMIENTOS = 0;
 #define ENCENDER_VELA 'V'
 #define ENCENDER_BENGALA 'E'
 #define TIEMPO_RESTANTE 'T'
-
-#define SEPARADOR_1_INICIO "\t\t\t╔══════════════════════════════════════════╗\n"
-#define SEPARADOR_1_FIN "\t\t\t╚══════════════════════════════════════════╝\n"
-#define SEPARADOR_MENSAJE "〔-▲-〕"
 
 
 void inicializar_juego(juego_t* juego, char tipo_personaje);
@@ -1268,7 +1264,7 @@ void usar_herramienta(juego_t* juego, char herramienta){
 
 
 /*
- * PRE: elemento en uso mayor o igual a 0 , o -1 
+ * PRE: Elemento en uso mayor o igual a 0 , o -1 
  * POS: Devuelve true si el elemento en uso no es -1 y la herramienta en uso es BENGALA, false en caso de que no se cumpla
  */ 
 bool hay_bengala_activa (elemento_mochila_t mochila[MAX_HERRAMIENTAS], int elemento_en_uso){
@@ -1277,10 +1273,10 @@ bool hay_bengala_activa (elemento_mochila_t mochila[MAX_HERRAMIENTAS], int eleme
 
 
 /*
- * PRE: 
- * POS: 
+ * PRE: Tipo sea válido, la cantidad de herramientas sea mayor o igual a 0
+ * POS: Devuelve -2 si no encuentra el elemento o sinó la posición del primer elemento que coincida con el tipo
  */ 
-int obtener_posicion_mochila(elemento_mochila_t mochila[MAX_HERRAMIENTAS], char elemento, int cantidad_herramientas){
+int obtener_posicion_mochila(elemento_mochila_t mochila[MAX_HERRAMIENTAS], char tipo, int cantidad_herramientas){
 	bool encontrado = false;
 
 	int indice = NO_HAY_ELEMENTO;
@@ -1288,7 +1284,7 @@ int obtener_posicion_mochila(elemento_mochila_t mochila[MAX_HERRAMIENTAS], char 
 
 	while(!encontrado && (i<cantidad_herramientas) ){
 		
-		if( es_herramienta_buscada(mochila[i], elemento) ){
+		if( es_herramienta_buscada(mochila[i], tipo) ){
 			encontrado = true;
 			indice = i;
 		} 
@@ -1300,6 +1296,10 @@ int obtener_posicion_mochila(elemento_mochila_t mochila[MAX_HERRAMIENTAS], char 
 }
 
 
+/*
+ * PRE: El elemento esté inicializado
+ * POS: Devuelve true sólo si coincide el tipo con el tipo del elemento ingresado y este tiene por lo menos 1 movimiento
+ */ 
 bool es_herramienta_buscada( elemento_mochila_t elemento, char buscado){
 	bool herramienta = false;
 
@@ -1311,6 +1311,10 @@ bool es_herramienta_buscada( elemento_mochila_t elemento, char buscado){
 }
 
 
+/*
+ * PRE: El índice sea -2 o mayor/igual a 0, el último movimiento sea W,A,S,D
+ * POS: Enciende la linterna si el índice no es -2, en caso contrario muestra un mensaje.
+ */ 
 void encender_linterna(juego_t* juego, char ultimo_movimiento, int indice){
 
 	if(indice != NO_HAY_ELEMENTO){
@@ -1330,6 +1334,10 @@ void encender_linterna(juego_t* juego, char ultimo_movimiento, int indice){
 }
 
 
+/*
+ * PRE: El índice sea -2 o mayor/igual a 0
+ * POS: Enciende una vela si el índice no es -2, en caso contrario muestra un mensaje.
+ */ 
 void encender_vela(juego_t* juego, int indice){
 
 	if (indice != NO_HAY_ELEMENTO){
@@ -1347,6 +1355,10 @@ void encender_vela(juego_t* juego, int indice){
 }
 
 
+/*
+ * PRE: El índice sea -2 o mayor/igual a 0
+ * POS: Enciende una bengala si el índice no es -2, en caso contrario muestra un mensaje.
+ */ 
 void encender_bengala(juego_t* juego, int indice){
 
 	if (indice != NO_HAY_ELEMENTO){
@@ -1365,15 +1377,6 @@ void encender_bengala(juego_t* juego, int indice){
 }
 
 
-/*
- * Recibe un juego con todas sus estructuras válidas.
- *
- * El juego se dará por terminado, si el personaje encontró a Chloe. 
- * Devolverá:
- * -> 0 si el estado es jugando. 
- * -> -1 si el estado es terminado.
- */
-
 int estado_juego(juego_t juego){
 	int estado = 0;
 
@@ -1387,15 +1390,19 @@ int estado_juego(juego_t juego){
 	}
 
 	return estado;
-
 }
 
+
+/*
+ * PRE: -
+ * POS: Devuelve true si la posición del personaje coincide con la de Chloe
+ */ 
 bool chloe_fue_encontrada(coordenada_t posicion_personaje, coordenada_t amiga_chloe){
 
 	return ((posicion_personaje.col == amiga_chloe.col) && (posicion_personaje.fil == amiga_chloe.fil));
-
 }
 
 bool es_jugada_valida (char jugada){
-	return ( (jugada==MOVERSE_ARRIBA) || (jugada==MOVERSE_ABAJO)||(jugada==MOVERSE_IZQUIERDA)||(jugada==MOVERSE_DERECHA)||(jugada==ENCENDER_LINTERNA)||(jugada==ENCENDER_VELA)||(jugada==ENCENDER_BENGALA)||(jugada==TIEMPO_RESTANTE));
+
+	return ( (jugada==MOVERSE_ARRIBA) || (jugada==MOVERSE_ABAJO) || (jugada==MOVERSE_IZQUIERDA) || (jugada==MOVERSE_DERECHA) ||(jugada==ENCENDER_LINTERNA) || (jugada==ENCENDER_VELA) || (jugada==ENCENDER_BENGALA) || (jugada==TIEMPO_RESTANTE) );
 }

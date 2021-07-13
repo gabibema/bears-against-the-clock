@@ -1,7 +1,6 @@
 #ifndef __GRAFICOS_H__
 #define __GRAFICOS_H__
 
-#include <stdio.h>
 
 #define NORMAL "\e[0m"
 #define SUBRAYADO "\e[4m"
@@ -49,18 +48,58 @@
 #define NADA '-'
 #define BENGALA_EN_USO 'I'
 
+#define VICTORIA 'V'
+#define DERROTA 'D'
+
 #define MAX_FILAS 20
 #define MAX_COLUMNAS 30
 
-
+/*
+ * PRE: -
+ * POS: Muestra todas las jugada válidas
+ */ 
 void mostrar_opciones();
 
+
+/*
+ * PRE: Evento sea válido, comentario sea ENCENDIDO, NADA o la direccion del movimiento
+ * POS: Muestra al usuario un mensaje correspondiente al evento en el juego
+ */ 
 void mostrar_mensaje_usuario(char evento, char comentario);
 
+
+/*
+ * PRE: -
+ * POS: Muestra al usuario el tiempo restante que tiene
+ */ 
 void mostrar_tiempo(double tiempo);
 
+
+/*
+ * PRE: -
+ * POS: Muestra la matriz como un tablero
+ */ 
 void mostrar_matriz(char matriz[MAX_FILAS][MAX_COLUMNAS]);
 
+
+/*
+ * PRE: -
+ * POS: Muestra los datos actuales del personaje y el juego
+ */ 
 void mostrar_datos(int cantidad_obstaculos, int cantidad_herramientas, int cantidad_elementos);
+
+
+/*
+ * PRE: Estado sea VICTORIA o DERROTA
+ * POS:  Muestra un ASCII ART de acuerdo al estado
+ */ 
+void mostrar_mensaje_final(char estado);
+
+
+/*
+ * PRE: Estado sea VICTORIA o DERROTA
+ * POS: Muestra un ASCII ART de acuerdo al estado
+ */ 
+void mostrar_imagen_final (char estado);
 
 #endif /* __GRAFICOS_H__ */
