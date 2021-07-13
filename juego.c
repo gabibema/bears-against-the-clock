@@ -45,6 +45,7 @@ int main(){
 
 	srand ((unsigned)time(NULL));
 
+	mostrar_animacion_cargando();
     test_de_personalidad(&personalidad_detectada);
 	system("clear");
 	

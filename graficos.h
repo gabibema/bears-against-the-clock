@@ -54,6 +54,13 @@
 #define MAX_FILAS 20
 #define MAX_COLUMNAS 30
 
+
+/*
+ * PRE: -
+ * POS: Muestra una animación ASCII ART del juego cargando
+ */ 
+void mostrar_animacion_cargando();
+
 /*
  * PRE: -
  * POS: Muestra todas las jugada válidas
