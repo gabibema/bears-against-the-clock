@@ -1,6 +1,9 @@
 #include "test_de_personalidad.h"
 #include <stdio.h>
 #include <stdbool.h>
+#include "graficos.h"
+#include <stdlib.h>
+#include <unistd.h>
 
 
 static const char POLAR = 'I';
@@ -37,9 +40,6 @@ const int PUNTAJE_MAXIMO_POLAR = 24;
 const int PUNTAJE_MINIMO_PANDA = 25;
 const int PUNTAJE_MAXIMO_PANDA = 43;
 
-void mostrar_imagen (char imagen);
-void mostrar_mensaje (char mensaje);
-
 void preguntar_canal_tv (char* canal_tv);
 bool es_canal_valido (char canal_tv);
 
@@ -63,8 +63,18 @@ bool es_polar (int puntaje);
 bool es_panda (int puntaje);
 
 void test_de_personalidad(char* personalidad_detectada);
-void mostrar_personalidad_escandalosa (int piso_torre, int fuerza_grito, char canal, char alimento);
+void mostrar_personalidad_escandalosa (int puntaje_total);
 
+/* 
+ *PRE: -
+ * POS: Muestra el título del test de personalidad
+ */
+void mostrar_titulo_test(){
+	printf("\t\t\t\t\t\t\t\t"AMARILLO"╔══════════════════════╗\n");
+    printf("\t\t\t\t\t\t\t\t║"NORMAL" TEST DE PERSONALIDAD "AMARILLO"║\n");
+    printf("\t\t\t\t\t\t\t\t╚══════════════════════╝"NORMAL"\n\n\n");
+
+}
 
 /*
  * PRE: -
@@ -240,45 +250,51 @@ bool es_panda (int puntaje_total){
 }
 
 /*
- * PRE: Piso_torre esté entre PISO_MAS_BAJO y PISO_MAS_ALTO .
- *		Fuerza_grito esté entre GRITO_MINIMO y GRITO_MAXIMO.
- *		Canal sea ANIME, LIMPIEZA o MUSICA_POP.
- *		Alimento sea BAMBU, FOCAS o PESCADO.
+ * PRE: Puntaje total sea mayoro o igual a 0 y menor o igual a 63
  * POS: Imprime por pantalla el personaje coincidente con el usuario.
  */
 
-void mostrar_personalidad_escandalosa (int piso_torre, int fuerza_grito, char canal, char alimento) {
+void mostrar_personalidad_escandalosa (int puntaje_total) {
 
-
-	int puntaje_total = calcular_puntaje_total (piso_torre, fuerza_grito, canal, alimento);
 
 	printf("\n ---------- Después de un arduo análisis con un puntaje de %i , se determinó que la personalidad más adecuada para definirte es ------------ \n\n", puntaje_total);
 
 	if ( es_polar(puntaje_total) ){
 
-		mostrar_imagen(POLAR);
-		printf("- Polar (%c) -  Alonzo Corazón de tigre\n\nSos el menor de los tres hermanos, casi siempre estás en tu mundo y no decís una palabra. Pero aunque seas un oso de pocas palabras, no hay que subestimarte. Posees un montón de talentos ocultos y sueles hacer todo el trabajo sucio de los osos. Te dan miedo los pepinos.\n\n", POLAR);
+		printf("- Polar (%c) -  Alonzo Corazón de tigre\n\n\tSos el menor de los tres hermanos, casi siempre estás en tu mundo y no decís una palabra. Pero aunque seas un oso de pocas palabras, no hay que subestimarte. \n\tPosees un montón de talentos ocultos y sueles hacer todo el trabajo sucio de los osos. \n\tTe dan miedo los pepinos.\n\n", POLAR);
 		
 	} else if ( es_panda(puntaje_total) ){
 
-		mostrar_imagen(PANDA);
-		printf (" - Panda (%c) - \n\nSos el hermano del medio y no te parecés en nada a tus hermanos. A ellos les gusta bailar, vos te quedas contra la pared. Ellos comen carne, vos sos vegetariano. Participas voluntariamente en casi todas las ideas de Pardo, aunque seas un poco más inteligente. Y como dice Pardo, sos el vínculo que une a tus hermanos.\n\n", PANDA);
+		printf (" - Panda (%c) - \n\n\tSos el hermano del medio y no te parecés en nada a tus hermanos. A ellos les gusta bailar, vos te quedas contra la pared. \n\tEllos comen carne, vos sos vegetariano. Participas voluntariamente en casi todas las ideas de Pardo, aunque seas un poco más inteligente. \n\tY como dice Pardo, sos el vínculo que une a tus hermanos.\n\n", PANDA);
 
 	} else {
 
-		mostrar_imagen(PARDO);
-		printf(" - Pardo (%c) - \n\nSos el mayor de los hermanos, un líder carismático, alegre y muy motivado. A lo mejor comiste pintura siendo osezno, nadie lo sabe. Te encanta divertirte y no tomarte nunca la vida demasiado en serio.\n\n", PARDO);
+		printf(" - Pardo (%c) - \n\n\tSos el mayor de los hermanos, un líder carismático, alegre y muy motivado. \n\tA lo mejor comiste pintura siendo osezno, nadie lo sabe. \n\tTe encanta divertirte y no tomarte nunca la vida demasiado en serio.\n\n", PARDO);
 	}
 
 }
 
+
+/*
+ * PRE: -
+ * POS: Pide un carácter al usuario
+ */
+void pedir_caracter_continuar(char* caracter){
+	printf("Ingrea cualquier carácter para continuar: ");
+	scanf(" %c", caracter);
+}
 void test_de_personalidad(char* personalidad_detectada){
 
 	char canal = '0';
 	char alimento = '0';
+	char continuar;
 
 	int piso_torre = 0;
 	int fuerza_grito = 0;
+
+	system("clear");
+
+	mostrar_titulo_test();
 
 	preguntar_canal_tv(&canal);
 	preguntar_alimento(&alimento);
@@ -297,4 +313,8 @@ void test_de_personalidad(char* personalidad_detectada){
 	} else {
 		(* personalidad_detectada) = PARDO;
 	}
+
+	mostrar_personalidad_escandalosa(puntaje_total);
+
+	pedir_caracter_continuar(&continuar);
 }

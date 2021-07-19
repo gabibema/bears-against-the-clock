@@ -53,6 +53,7 @@
 
 #define MAX_FILAS 20
 #define MAX_COLUMNAS 30
+#define LAPSO 1
 
 
 /*
@@ -91,9 +92,9 @@ void mostrar_matriz(char matriz[MAX_FILAS][MAX_COLUMNAS]);
 
 /*
  * PRE: -
- * POS: Muestra los datos actuales del personaje y el juego
+ * POS: Muestra un encabezado con el objetivo del juego
  */ 
-void mostrar_datos(int cantidad_obstaculos, int cantidad_herramientas, int cantidad_elementos);
+void mostrar_titulo();
 
 
 /*

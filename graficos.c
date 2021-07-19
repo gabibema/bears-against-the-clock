@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include "graficos.h"
 
 #define NORMAL "\e[0m"
@@ -14,8 +16,8 @@
 #define CYAN "\e[36m"
 #define BLANCO "\e[37m"
 
-#define SEPARADOR_1_INICIO "\t\t\t"AMARILLO"╔══════════════════════════════════════════╗"AMARILLO"\n"
-#define SEPARADOR_1_FIN "\t\t\t"AMARILLO"╚══════════════════════════════════════════╝"AMARILLO"\n"
+#define SEPARADOR_1_INICIO "\t\t"AMARILLO"╔══════════════════════════════════════════╗"AMARILLO"\n"
+#define SEPARADOR_1_FIN "\t\t"AMARILLO"╚══════════════════════════════════════════╝"AMARILLO"\n"
 #define SEPARADOR_MENSAJE "〔═▲═〕"
 
 #define MAX_MENSAJE 256
@@ -40,6 +42,7 @@
 #define ENCENDER_BENGALA 'E'
 #define TIEMPO_RESTANTE 'T'
 
+
 #define SECUENCIA_TOTAL 10
 
 
@@ -50,13 +53,7 @@ void mostrar_opciones(){
     printf("┋┋┋                I N G R E S A\n");
     printf("┋┋┣┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┛\n");
     printf("┋┋┣┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┓\n");
-    printf("┋┋┋    ◉ᐅ"NORMAL" %c: Para moverte arriba"AMARILLO"\n", MOVERSE_ARRIBA);
-    printf("┋┋┣┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅"AMARILLO"\n");
-    printf("┋┋┋    ◉ᐅ"NORMAL" %c: Para moverte a la izquierda"AMARILLO"\n",MOVERSE_IZQUIERDA);
-    printf("┋┋┣┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅"AMARILLO"\n");
-    printf("┋┋┋    ◉ᐅ"NORMAL" %c: Para moverte abajo"AMARILLO"\n", MOVERSE_ABAJO);
-    printf("┋┋┣┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅"AMARILLO"\n");
-    printf("┋┋┋    ◉ᐅ"NORMAL" %c: Para moverte a la derecha"AMARILLO"\n", MOVERSE_DERECHA);
+    printf("┋┋┋    ◉ᐅ"NORMAL" [%c,%c,%c,%c]: Para moverte"AMARILLO"\n", MOVERSE_ARRIBA, MOVERSE_IZQUIERDA, MOVERSE_ABAJO,MOVERSE_DERECHA);
     printf("┋┋┣┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅"AMARILLO"\n");
     printf("┋┋┋    ◉ᐅ"NORMAL" %c: Para encender una linterna "AMARILLO"\n", ENCENDER_LINTERNA);
     printf("┋┋┣┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅"AMARILLO"\n");
@@ -76,47 +73,47 @@ void mostrar_mensaje_usuario(char evento, char comentario){
 
         if (evento == LINTERNA){
 
-            printf(" %s\t\t\t%s ¡Linterna ENCENDIDA! %s\n %s\n", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
+            printf(" %s\t\t   %s ¡Linterna ENCENDIDA! %s\n %s", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
 
         } else if (evento == VELA){
 
-            printf(" %s\t\t\t%s ¡Vela Encendida! %s\n %s\n", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
+            printf(" %s\t\t      %s ¡Vela Encendida! %s\n %s", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
 
         } else{
 
-            printf(" %s\t\t\t%s ¡Bengala Encendida! %s\n %s\n", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
+            printf(" %s\t\t    %s ¡Bengala Encendida! %s\n %s", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
         }
 
     } else if (comentario == NADA){
 
         if (evento == KOALA){
 
-            printf(" %s\t\t\t     %s ¡Sekoalaz chocado! %s\n %s\n", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
+            printf(" %s\t\t     %s ¡Sekoalaz chocado! %s\n %s", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
 
         } else if (evento == LINTERNA){    
             
-            printf(" %s\t\t\t%s ¡ERROR! No te quedan pilas %s\n %s\n", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
+            printf(" %s\t\t%s "ROJO"¡ERROR! No te quedan pilas "AMARILLO"%s\n %s", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
             
         } else if (evento == VELA){    
             
-            printf(" %s\t\t\t%s ¡ERROR! No tienes velas %s\n %s\n", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
+            printf(" %s\t\t%s "ROJO"¡ERROR! No tienes velas"AMARILLO" %s\n %s", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
             
         } else if (evento == BENGALA){   
 
-            printf(" %s\t\t\t%s ¡ERROR! No tienes bengalas %s\n %s\n", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
+            printf(" %s\t\t%s "ROJO"¡ERROR! No tienes bengalas"AMARILLO" %s\n %s", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
             
         } else if ( evento == BENGALA_EN_USO){ 
 
-	        printf(" %s\t\t\t%s ¡Hay una bengala activa! %s\n %s\n", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);       
+	        printf(" %s\t\t%s "ROJO"¡Hay una bengala activa!"AMARILLO" %s\n %s", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);       
 
         } else {
 
-            printf(" %s\t\t\t%s ¡ERROR! Movimiento no posible%s\n %s\n", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
+            printf(" %s\t\t%s "ROJO"¡ERROR! Movimiento no posible"AMARILLO"%s\n %s", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
 
         }
 
     } else {
-        printf(" %s\t\t\t%s Movimiento realizado: [%c] %s\n %s\n", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, comentario, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
+        printf("  %s\t\t %s Movimiento realizado: [%c] %s\n %s", SEPARADOR_1_INICIO, SEPARADOR_MENSAJE, comentario, SEPARADOR_MENSAJE, SEPARADOR_1_FIN);
     }
 
 }
@@ -130,11 +127,11 @@ void mostrar_tiempo(double tiempo){
 void mostrar_matriz(char matriz[MAX_FILAS][MAX_COLUMNAS]){
 	int i, j;
 
-	printf("\t\t\t\t\t%s╔═════════════════════════════════════════════════════════════════╗%s\n",CYAN,NORMAL);
-	printf("\t\t\t\t\t%s║                                                                 ║%s\n",CYAN,NORMAL);
+	printf("\t\t\t\t\t%s╔═════════════════════════════════════════════════════════════════╗%s\n",MAGENTA,NORMAL);
+	printf("\t\t\t\t\t%s║                                                                 ║%s\n",MAGENTA,NORMAL);
 	//printf("\t\t\t\t║     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9  ║\n"); 
 	for ( i = 0; i < MAX_FILAS; i++){
-		printf("\t\t\t\t\t%s║   %s",CYAN,NORMAL);
+		printf("\t\t\t\t\t%s║   %s",MAGENTA,NORMAL);
 		
 		for ( j = 0; j < MAX_COLUMNAS; j++){
 			if (matriz[i][j] == VACIO){
@@ -156,26 +153,20 @@ void mostrar_matriz(char matriz[MAX_FILAS][MAX_COLUMNAS]){
 				printf("%c ", matriz[i][j]);
 			}
 		}
-		printf("%s  ║ %s\n",CYAN,NORMAL);
+		printf("%s  ║ %s\n",MAGENTA,NORMAL);
 
 	} 
-	printf("\t\t\t\t\t%s║                                                                 ║%s\n",CYAN,NORMAL);
-	printf("\t\t\t\t\t%s╚═════════════════════════════════════════════════════════════════╝%s\n",CYAN,NORMAL);
+	printf("\t\t\t\t\t%s║                                                                 ║%s\n",MAGENTA,NORMAL);
+	printf("\t\t\t\t\t%s╚═════════════════════════════════════════════════════════════════╝%s\n",MAGENTA,NORMAL);
 }
 
-void mostrar_datos(int cantidad_obstaculos, int cantidad_herramientas, int cantidad_elementos){
+void mostrar_titulo(){
 
-    printf("\t\t\t\t\t\t\t\t╔═══════════════════╗\n");
-    printf("\t\t\t\t\t\t\t\t║ OSOS CONTRA RELOJ ║\n");
-    printf("\t\t\t\t\t\t\t\t╚═══════════════════╝\n");
+    printf("\t\t\t\t\t\t\t\t"AMARILLO"╔═══════════════════╗\n");
+    printf("\t\t\t\t\t\t\t\t║"NORMAL" OSOS CONTRA RELOJ "AMARILLO"║\n");
+    printf("\t\t\t\t\t\t\t\t╚═══════════════════╝"NORMAL"\n");
 
-    printf("\t\t\t\t\t\t    ╔════════════════════════════════════════╗\n");
-	printf("\t\t\t\t\t\t    ║ Para ganar debes encontrar a Chloe (%s%s%c%s) ║\n",VERDE_CLARO, MAGENTA_F,CHLOE,NORMAL );
-    printf("\t\t\t\t\t\t    ╚════════════════════════════════════════╝\n");
-    printf(VERDE_CLARO" >>>>>"NORMAL" Cantidad de Obstáculos:  "ROJO"%i"VERDE_CLARO" <<<<<\n"NORMAL, cantidad_obstaculos);
-	printf(VERDE_CLARO" >>>>>"NORMAL" Cantidad de Herramientas: "ROJO"%i"VERDE_CLARO" <<<<<\n"NORMAL, cantidad_herramientas);
-	printf(VERDE_CLARO" >>>>>"NORMAL" Herramientas en Mochila:   "ROJO"%i"VERDE_CLARO" <<<<<\n"NORMAL, cantidad_elementos);
-
+	printf("\t\t\t\t\t\t    -[]- "SUBRAYADO"Para ganar debes encontrar a Chloe (%s%s%c%s)"NORMAL" -[]- \n",VERDE_CLARO, MAGENTA_F,CHLOE,NORMAL );
 
 }
 
@@ -222,10 +213,10 @@ void mostrar_animacion_cargando(){
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣇⠀⠀⠀⠀⠀⠀⣀⠀⣀⢠⣾⠃⣾⠃⠀⠀⠀⠀⠀⠀⣤⢠⡔⣿⣠⡿⣁⣤⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⠀⠀⠀⠀⢿⡀⠀⠀⠀⠀⠀⠀⢀⡀⠀⢤⡹⣧⡀⠀⠀⣸⠇⣠⢀⡀⠀⠀⠀⠀⠀⣼⡇⠀⠀⠀⠘⣷⡀⠀⠀⠀⠀⠀⠀⠀⢼⣳⡄⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢷⣤⣄⣀⣀⣀⣸⣇⣸⣧⣿⠀⠘⠳⠶⣤⣤⣤⣤⣤⣿⣼⣿⡼⠿⣴⣏⣀⣴⠛⠀⠀⠀⢀⣀⣀⣤⡾⠃⠀⠀⠀⠀⠘⢷⣤⣀⣀⣀⡀⠀⣀⣻⣆⣸⣷⣽⠇⠀⠀⢿⣾⡃⣿⠁⠀⠀⢀⣀⣴⠟⠀⠀⠀⠀⠀⠈⠛⠶⢦⣤⣀⣀⣀⣿⣤⡿⠃⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠛⠛⠛⠛⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠙⠛⠛⠛⠛⠋⠉⠉⠀⠀⠀⠀⠀⠙⠛⠛⠓⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n\n\n\
-            \t\t\t\t"VERDE"███"NORMAL"███████████████████████████\n\
-            \t\t\t\t"VERDE"███"NORMAL"███████████████████████████\n\
-                ");
-            sleep(0.5);
+            \t\t\t\t\t\t\t\t"VERDE"███"NORMAL"███████████████████████████\n\
+            \t\t\t\t\t\t\t\t"VERDE"███"NORMAL"███████████████████████████\n");
+            sleep(LAPSO);
+            system("clear");
         } else if (i == 1){
             printf("\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣤⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⡟⣵⣶⠿⢟⡤⣽⣦⠀⠀⠀⠀⠀⠀⠀⠀\n\
@@ -266,11 +257,11 @@ void mostrar_animacion_cargando(){
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣇⠀⠀⠀⠀⠀⠀⣀⠀⣀⢠⣾⠃⣾⠃⠀⠀⠀⠀⠀⠀⣤⢠⡔⣿⣠⡿⣁⣤⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⠀⠀⠀⠀⢿⡀⠀⠀⠀⠀⠀⠀⢀⡀⠀⢤⡹⣧⡀⠀⠀⣸⠇⣠⢀⡀⠀⠀⠀⠀⠀⣼⡇⠀⠀⠀⠘⣷⡀⠀⠀⠀⠀⠀⠀⠀⢼⣳⡄⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢷⣤⣄⣀⣀⣀⣸⣇⣸⣧⣿⠀⠘⠳⠶⣤⣤⣤⣤⣤⣿⣼⣿⡼⠿⣴⣏⣀⣴⠛⠀⠀⠀⢀⣀⣀⣤⡾⠃⠀⠀⠀⠀⠘⢷⣤⣀⣀⣀⡀⠀⣀⣻⣆⣸⣷⣽⠇⠀⠀⢿⣾⡃⣿⠁⠀⠀⢀⣀⣴⠟⠀⠀⠀⠀⠀⠈⠛⠶⢦⣤⣀⣀⣀⣿⣤⡿⠃⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠛⠛⠛⠛⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠙⠛⠛⠛⠛⠋⠉⠉⠀⠀⠀⠀⠀⠙⠛⠛⠓⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n\n\n\
-            \t\t\t\t"VERDE"██████"NORMAL"████████████████████████\n\
-            \t\t\t\t"VERDE"██████"NORMAL"████████████████████████\n\
-                ");
-            sleep(0.5);
-        }⠀else if (i == 2){
+            \t\t\t\t\t\t\t\t"VERDE"██████"NORMAL"████████████████████████\n\
+            \t\t\t\t\t\t\t\t"VERDE"██████"NORMAL"████████████████████████\n");
+            sleep(LAPSO);
+            system("clear");
+        } else if (i == 2){
             printf("\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣤⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⡟⣵⣶⠿⢟⡤⣽⣦⠀⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡟⢁⣀⣬⣿⣤⣤⣤⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⡏⠀⠈⣟⠙⣿⠛⠋⢹⡆⠀⠀⠀⠀⠀⠀⠀\n\
@@ -310,10 +301,10 @@ void mostrar_animacion_cargando(){
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣇⠀⠀⠀⠀⠀⠀⣀⠀⣀⢠⣾⠃⣾⠃⠀⠀⠀⠀⠀⠀⣤⢠⡔⣿⣠⡿⣁⣤⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⠀⠀⠀⠀⢿⡀⠀⠀⠀⠀⠀⠀⢀⡀⠀⢤⡹⣧⡀⠀⠀⣸⠇⣠⢀⡀⠀⠀⠀⠀⠀⣼⡇⠀⠀⠀⠘⣷⡀⠀⠀⠀⠀⠀⠀⠀⢼⣳⡄⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢷⣤⣄⣀⣀⣀⣸⣇⣸⣧⣿⠀⠘⠳⠶⣤⣤⣤⣤⣤⣿⣼⣿⡼⠿⣴⣏⣀⣴⠛⠀⠀⠀⢀⣀⣀⣤⡾⠃⠀⠀⠀⠀⠘⢷⣤⣀⣀⣀⡀⠀⣀⣻⣆⣸⣷⣽⠇⠀⠀⢿⣾⡃⣿⠁⠀⠀⢀⣀⣴⠟⠀⠀⠀⠀⠀⠈⠛⠶⢦⣤⣀⣀⣀⣿⣤⡿⠃⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠛⠛⠛⠛⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠙⠛⠛⠛⠛⠋⠉⠉⠀⠀⠀⠀⠀⠙⠛⠛⠓⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n\n\n\
-            \t\t\t\t"VERDE"█████████"NORMAL"█████████████████████\n\
-            \t\t\t\t"VERDE"█████████"NORMAL"█████████████████████\n\
-                ");
-            sleep(0.5);
+            \t\t\t\t\t\t\t\t"VERDE"█████████"NORMAL"█████████████████████\n\
+            \t\t\t\t\t\t\t\t"VERDE"█████████"NORMAL"█████████████████████\n");
+            sleep(LAPSO);
+            system("clear");
         } else if (i == 3){
             printf("\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣤⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⡟⣵⣶⠿⢟⡤⣽⣦⠀⠀⠀⠀⠀⠀⠀⠀\n\
@@ -354,11 +345,11 @@ void mostrar_animacion_cargando(){
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣇⠀⠀⠀⠀⠀⠀⣀⠀⣀⢠⣾⠃⣾⠃⠀⠀⠀⠀⠀⠀⣤⢠⡔⣿⣠⡿⣁⣤⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⠀⠀⠀⠀⢿⡀⠀⠀⠀⠀⠀⠀⢀⡀⠀⢤⡹⣧⡀⠀⠀⣸⠇⣠⢀⡀⠀⠀⠀⠀⠀⣼⡇⠀⠀⠀⠘⣷⡀⠀⠀⠀⠀⠀⠀⠀⢼⣳⡄⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢷⣤⣄⣀⣀⣀⣸⣇⣸⣧⣿⠀⠘⠳⠶⣤⣤⣤⣤⣤⣿⣼⣿⡼⠿⣴⣏⣀⣴⠛⠀⠀⠀⢀⣀⣀⣤⡾⠃⠀⠀⠀⠀⠘⢷⣤⣀⣀⣀⡀⠀⣀⣻⣆⣸⣷⣽⠇⠀⠀⢿⣾⡃⣿⠁⠀⠀⢀⣀⣴⠟⠀⠀⠀⠀⠀⠈⠛⠶⢦⣤⣀⣀⣀⣿⣤⡿⠃⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠛⠛⠛⠛⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠙⠛⠛⠛⠛⠋⠉⠉⠀⠀⠀⠀⠀⠙⠛⠛⠓⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n\n\n\
-            \t\t\t\t"VERDE"████████████"NORMAL"██████████████████\n\
-            \t\t\t\t"VERDE"████████████"NORMAL"██████████████████\n\
-                ");
-            sleep(0.5);
-        } else if (i == 4){
+            \t\t\t\t\t\t\t\t"VERDE"████████████"NORMAL"██████████████████\n\
+            \t\t\t\t\t\t\t\t"VERDE"████████████"NORMAL"██████████████████\n");
+            sleep(LAPSO);
+            system("clear");
+        }else if (i == 4){
             printf("\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣤⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⡟⣵⣶⠿⢟⡤⣽⣦⠀⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡟⢁⣀⣬⣿⣤⣤⣤⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⡏⠀⠈⣟⠙⣿⠛⠋⢹⡆⠀⠀⠀⠀⠀⠀⠀\n\
@@ -398,11 +389,11 @@ void mostrar_animacion_cargando(){
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣇⠀⠀⠀⠀⠀⠀⣀⠀⣀⢠⣾⠃⣾⠃⠀⠀⠀⠀⠀⠀⣤⢠⡔⣿⣠⡿⣁⣤⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⠀⠀⠀⠀⢿⡀⠀⠀⠀⠀⠀⠀⢀⡀⠀⢤⡹⣧⡀⠀⠀⣸⠇⣠⢀⡀⠀⠀⠀⠀⠀⣼⡇⠀⠀⠀⠘⣷⡀⠀⠀⠀⠀⠀⠀⠀⢼⣳⡄⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢷⣤⣄⣀⣀⣀⣸⣇⣸⣧⣿⠀⠘⠳⠶⣤⣤⣤⣤⣤⣿⣼⣿⡼⠿⣴⣏⣀⣴⠛⠀⠀⠀⢀⣀⣀⣤⡾⠃⠀⠀⠀⠀⠘⢷⣤⣀⣀⣀⡀⠀⣀⣻⣆⣸⣷⣽⠇⠀⠀⢿⣾⡃⣿⠁⠀⠀⢀⣀⣴⠟⠀⠀⠀⠀⠀⠈⠛⠶⢦⣤⣀⣀⣀⣿⣤⡿⠃⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠛⠛⠛⠛⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠙⠛⠛⠛⠛⠋⠉⠉⠀⠀⠀⠀⠀⠙⠛⠛⠓⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n\n\n\
-            \t\t\t\t"VERDE"███████████████"NORMAL"███████████████\n\
-            \t\t\t\t"VERDE"███████████████"NORMAL"███████████████\n\
-                ");
-            sleep(0.5);
-        } else if (i == 5){
+            \t\t\t\t\t\t\t\t"VERDE"███████████████"NORMAL"███████████████\n\
+            \t\t\t\t\t\t\t\t"VERDE"███████████████"NORMAL"███████████████\n");
+            sleep(LAPSO);
+            system("clear");
+        }else if (i == 5){
             printf("\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣤⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⡟⣵⣶⠿⢟⡤⣽⣦⠀⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡟⢁⣀⣬⣿⣤⣤⣤⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⡏⠀⠈⣟⠙⣿⠛⠋⢹⡆⠀⠀⠀⠀⠀⠀⠀\n\
@@ -442,11 +433,11 @@ void mostrar_animacion_cargando(){
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣇⠀⠀⠀⠀⠀⠀⣀⠀⣀⢠⣾⠃⣾⠃⠀⠀⠀⠀⠀⠀⣤⢠⡔⣿⣠⡿⣁⣤⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⠀⠀⠀⠀⢿⡀⠀⠀⠀⠀⠀⠀⢀⡀⠀⢤⡹⣧⡀⠀⠀⣸⠇⣠⢀⡀⠀⠀⠀⠀⠀⣼⡇⠀⠀⠀⠘⣷⡀⠀⠀⠀⠀⠀⠀⠀⢼⣳⡄⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢷⣤⣄⣀⣀⣀⣸⣇⣸⣧⣿⠀⠘⠳⠶⣤⣤⣤⣤⣤⣿⣼⣿⡼⠿⣴⣏⣀⣴⠛⠀⠀⠀⢀⣀⣀⣤⡾⠃⠀⠀⠀⠀⠘⢷⣤⣀⣀⣀⡀⠀⣀⣻⣆⣸⣷⣽⠇⠀⠀⢿⣾⡃⣿⠁⠀⠀⢀⣀⣴⠟⠀⠀⠀⠀⠀⠈⠛⠶⢦⣤⣀⣀⣀⣿⣤⡿⠃⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠛⠛⠛⠛⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠙⠛⠛⠛⠛⠋⠉⠉⠀⠀⠀⠀⠀⠙⠛⠛⠓⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n\n\n\
-            \t\t\t\t"VERDE"██████████████████"NORMAL"████████████\n\
-            \t\t\t\t"VERDE"██████████████████"NORMAL"████████████\n\
-                ");
-            sleep(0.5);
-        } else if (i == 6){
+            \t\t\t\t\t\t\t\t"VERDE"██████████████████"NORMAL"████████████\n\
+            \t\t\t\t\t\t\t\t"VERDE"██████████████████"NORMAL"████████████\n");
+            sleep(LAPSO);
+            system("clear");
+        }else if (i == 6){
             printf("\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣤⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⡟⣵⣶⠿⢟⡤⣽⣦⠀⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡟⢁⣀⣬⣿⣤⣤⣤⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⡏⠀⠈⣟⠙⣿⠛⠋⢹⡆⠀⠀⠀⠀⠀⠀⠀\n\
@@ -486,10 +477,10 @@ void mostrar_animacion_cargando(){
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣇⠀⠀⠀⠀⠀⠀⣀⠀⣀⢠⣾⠃⣾⠃⠀⠀⠀⠀⠀⠀⣤⢠⡔⣿⣠⡿⣁⣤⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⠀⠀⠀⠀⢿⡀⠀⠀⠀⠀⠀⠀⢀⡀⠀⢤⡹⣧⡀⠀⠀⣸⠇⣠⢀⡀⠀⠀⠀⠀⠀⣼⡇⠀⠀⠀⠘⣷⡀⠀⠀⠀⠀⠀⠀⠀⢼⣳⡄⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢷⣤⣄⣀⣀⣀⣸⣇⣸⣧⣿⠀⠘⠳⠶⣤⣤⣤⣤⣤⣿⣼⣿⡼⠿⣴⣏⣀⣴⠛⠀⠀⠀⢀⣀⣀⣤⡾⠃⠀⠀⠀⠀⠘⢷⣤⣀⣀⣀⡀⠀⣀⣻⣆⣸⣷⣽⠇⠀⠀⢿⣾⡃⣿⠁⠀⠀⢀⣀⣴⠟⠀⠀⠀⠀⠀⠈⠛⠶⢦⣤⣀⣀⣀⣿⣤⡿⠃⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠛⠛⠛⠛⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠙⠛⠛⠛⠛⠋⠉⠉⠀⠀⠀⠀⠀⠙⠛⠛⠓⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n\n\n\
-            \t\t\t\t"VERDE"█████████████████████"NORMAL"█████████\n\
-            \t\t\t\t"VERDE"█████████████████████"NORMAL"█████████\n\
-                ");
-            sleep(0.5);
+            \t\t\t\t\t\t\t\t"VERDE"█████████████████████"NORMAL"█████████\n\
+            \t\t\t\t\t\t\t\t"VERDE"█████████████████████"NORMAL"█████████\n");
+            sleep(LAPSO);
+            system("clear");
         } else if (i == 7){
             printf("\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣤⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⡟⣵⣶⠿⢟⡤⣽⣦⠀⠀⠀⠀⠀⠀⠀⠀\n\
@@ -530,10 +521,10 @@ void mostrar_animacion_cargando(){
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣇⠀⠀⠀⠀⠀⠀⣀⠀⣀⢠⣾⠃⣾⠃⠀⠀⠀⠀⠀⠀⣤⢠⡔⣿⣠⡿⣁⣤⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⠀⠀⠀⠀⢿⡀⠀⠀⠀⠀⠀⠀⢀⡀⠀⢤⡹⣧⡀⠀⠀⣸⠇⣠⢀⡀⠀⠀⠀⠀⠀⣼⡇⠀⠀⠀⠘⣷⡀⠀⠀⠀⠀⠀⠀⠀⢼⣳⡄⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢷⣤⣄⣀⣀⣀⣸⣇⣸⣧⣿⠀⠘⠳⠶⣤⣤⣤⣤⣤⣿⣼⣿⡼⠿⣴⣏⣀⣴⠛⠀⠀⠀⢀⣀⣀⣤⡾⠃⠀⠀⠀⠀⠘⢷⣤⣀⣀⣀⡀⠀⣀⣻⣆⣸⣷⣽⠇⠀⠀⢿⣾⡃⣿⠁⠀⠀⢀⣀⣴⠟⠀⠀⠀⠀⠀⠈⠛⠶⢦⣤⣀⣀⣀⣿⣤⡿⠃⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠛⠛⠛⠛⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠙⠛⠛⠛⠛⠋⠉⠉⠀⠀⠀⠀⠀⠙⠛⠛⠓⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n\n\n\
-            \t\t\t\t"VERDE"████████████████████████"NORMAL"██████\n\
-            \t\t\t\t"VERDE"████████████████████████"NORMAL"██████\n\
-                ");
-            sleep(0.5);
+            \t\t\t\t\t\t\t\t"VERDE"████████████████████████"NORMAL"██████\n\
+            \t\t\t\t\t\t\t\t"VERDE"████████████████████████"NORMAL"██████\n");
+            sleep(LAPSO);
+            system("clear");
         } else if (i == 8){
             printf("\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣤⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⡟⣵⣶⠿⢟⡤⣽⣦⠀⠀⠀⠀⠀⠀⠀⠀\n\
@@ -574,10 +565,10 @@ void mostrar_animacion_cargando(){
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣇⠀⠀⠀⠀⠀⠀⣀⠀⣀⢠⣾⠃⣾⠃⠀⠀⠀⠀⠀⠀⣤⢠⡔⣿⣠⡿⣁⣤⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⠀⠀⠀⠀⢿⡀⠀⠀⠀⠀⠀⠀⢀⡀⠀⢤⡹⣧⡀⠀⠀⣸⠇⣠⢀⡀⠀⠀⠀⠀⠀⣼⡇⠀⠀⠀⠘⣷⡀⠀⠀⠀⠀⠀⠀⠀⢼⣳⡄⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢷⣤⣄⣀⣀⣀⣸⣇⣸⣧⣿⠀⠘⠳⠶⣤⣤⣤⣤⣤⣿⣼⣿⡼⠿⣴⣏⣀⣴⠛⠀⠀⠀⢀⣀⣀⣤⡾⠃⠀⠀⠀⠀⠘⢷⣤⣀⣀⣀⡀⠀⣀⣻⣆⣸⣷⣽⠇⠀⠀⢿⣾⡃⣿⠁⠀⠀⢀⣀⣴⠟⠀⠀⠀⠀⠀⠈⠛⠶⢦⣤⣀⣀⣀⣿⣤⡿⠃⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠛⠛⠛⠛⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠙⠛⠛⠛⠛⠋⠉⠉⠀⠀⠀⠀⠀⠙⠛⠛⠓⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n\n\n\
-            \t\t\t\t"VERDE"███████████████████████████"NORMAL"███\n\
-            \t\t\t\t"VERDE"███████████████████████████"NORMAL"███\n\
-                ");
-            sleep(0.5);
+            \t\t\t\t\t\t\t\t"VERDE"███████████████████████████"NORMAL"███\n\
+            \t\t\t\t\t\t\t\t"VERDE"███████████████████████████"NORMAL"███\n");
+            sleep(LAPSO);
+            system("clear");
         } else if (i == 9){
             printf("\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣤⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⡟⣵⣶⠿⢟⡤⣽⣦⠀⠀⠀⠀⠀⠀⠀⠀\n\
@@ -618,10 +609,10 @@ void mostrar_animacion_cargando(){
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣇⠀⠀⠀⠀⠀⠀⣀⠀⣀⢠⣾⠃⣾⠃⠀⠀⠀⠀⠀⠀⣤⢠⡔⣿⣠⡿⣁⣤⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⠀⠀⠀⠀⢿⡀⠀⠀⠀⠀⠀⠀⢀⡀⠀⢤⡹⣧⡀⠀⠀⣸⠇⣠⢀⡀⠀⠀⠀⠀⠀⣼⡇⠀⠀⠀⠘⣷⡀⠀⠀⠀⠀⠀⠀⠀⢼⣳⡄⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢷⣤⣄⣀⣀⣀⣸⣇⣸⣧⣿⠀⠘⠳⠶⣤⣤⣤⣤⣤⣿⣼⣿⡼⠿⣴⣏⣀⣴⠛⠀⠀⠀⢀⣀⣀⣤⡾⠃⠀⠀⠀⠀⠘⢷⣤⣀⣀⣀⡀⠀⣀⣻⣆⣸⣷⣽⠇⠀⠀⢿⣾⡃⣿⠁⠀⠀⢀⣀⣴⠟⠀⠀⠀⠀⠀⠈⠛⠶⢦⣤⣀⣀⣀⣿⣤⡿⠃⠀⠀⠀⠀⠀⠀⠀\n\
             \t\t\t    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠛⠛⠛⠛⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠙⠛⠛⠛⠛⠋⠉⠉⠀⠀⠀⠀⠀⠙⠛⠛⠓⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n\n\n\
-            \t\t\t\t"VERDE"██████████████████████████████"NORMAL"\n\
-            \t\t\t\t"VERDE"██████████████████████████████"NORMAL"\n\
-                ");
-            sleep(0.5);
+            \t\t\t\t\t\t\t\t"VERDE"██████████████████████████████"NORMAL"\n\
+            \t\t\t\t\t\t\t\t"VERDE"██████████████████████████████"NORMAL"\n");
+            sleep(LAPSO);
+            system("clear");
         }
     }
 }
@@ -651,8 +642,8 @@ void mostrar_mensaje_final(char estado){
         \t\t\t\t    **********************  ***************  ***************  ********  *************      *******      *****************\n\
         \t\t\t\t    **********************  ***************  ***************  ********  *************      *******      *****************\n\
         " NORMAL);
-
-    } else {
+        
+    }else {
 
         printf(ROJO "\n\n\n\n\n\n\n\n\n\n\n\n\n\
         \t\t\t\t***************  ********************************  *************    *******  *************  ********************************  \n\
@@ -683,7 +674,7 @@ void mostrar_imagen_final (char estado){
 
     if(estado == VICTORIA){
 
-        printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\
+        printf("\n\n\n\n\
         \t\t\t\t⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n\
         \t\t\t\t⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠀⠀⢠⡶⠂⠀⠀⡖⠒⠒⠒⠲⡄⠀⠀⠀⣠⢆⠀⠀⠀⢰⠒⠒⠒⠒⢦⡀⢠⡖⠒⠒⠒⢲⠀⠀⠀⠀\n\
         \t\t\t\t⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⢾⠏⣸⡇⣼⢣⡾⣿⠀⡇⠀⣏⠷⠀⡗⠀⠀⣰⠁⠈⢇⠀⠀⣸⠀⢰⠒⢢⠀⢳⢸⠀⢰⣉⡋⠉⠀⠀⠀⠀\n\
@@ -723,7 +714,7 @@ void mostrar_imagen_final (char estado){
 
     } else {
 
-        printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\
+        printf("\n\n\n\n\
         \t\t\t\t⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠶⢤⠀⠀⠀⢀⣤⢤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n\
         \t\t\t\t⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠤⣄⠀⠀⠀⠀⠀⡴⠒⠲⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢧⠀⠈⣧⣤⣤⣼⠁⠀⢹⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n\
         \t\t\t\t⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣡⡤⠞⠚⠛⠛⠛⠺⠃⠀⢀⣟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠴⠋⠃⠀⠁⠀⠀⠈⠁⠀⠛⠳⢤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n\
@@ -759,8 +750,4 @@ void mostrar_imagen_final (char estado){
         \t\t\t\t⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠛⠛⠛⠛⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n\
         ");
     }
-}
-
-int main(){
-    return 0;
 }

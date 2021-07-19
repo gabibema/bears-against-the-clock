@@ -5,6 +5,7 @@
 #include "test_de_personalidad.h"
 #include "osos_contra_reloj.h"
 #include "graficos.h"
+#include <unistd.h>
 #include "utiles.h"
 
 const int JUEGO_TERMINADO = -1;
@@ -37,6 +38,20 @@ void pedir_jugada(char* jugada){
 	}
 }
 
+void mostrar_resultado(double tiempo){
+
+	if ( tiempo <= TIEMPO_TOTAL){
+		mostrar_mensaje_final(VICTORIA);
+		sleep(LAPSO);
+	system("clear");
+		mostrar_imagen_final(VICTORIA);
+	} else{
+		mostrar_mensaje_final(DERROTA);
+		sleep(LAPSO);
+		system("clear");
+		mostrar_imagen_final(DERROTA);
+	}
+}
 
 int main(){
 	juego_t juego;
@@ -45,7 +60,7 @@ int main(){
 
 	srand ((unsigned)time(NULL));
 
-	mostrar_animacion_cargando();
+	//mostrar_animacion_cargando();
     test_de_personalidad(&personalidad_detectada);
 	system("clear");
 	
@@ -55,16 +70,13 @@ int main(){
 	do{
 		mostrar_juego(juego);
 		pedir_jugada(&(ultima_jugada));
+		system("clear");
 		realizar_jugada(&juego, ultima_jugada);
 
 	} while (estado_juego(juego)!=JUEGO_TERMINADO);
 
 	system("clear");
 
-	if ( (tiempo_actual() + juego.personaje.tiempo_perdido <= TIEMPO_TOTAL)){
-		printf("\tFELICIDADES GANASTE!!!");
-	} else{
-		printf("\tCHLOE SE QUEDÓ SIN SU INHALADOR :(");
-	}
+	mostrar_resultado( tiempo_actual() +juego.personaje.tiempo_perdido);
 	return 0;
 }

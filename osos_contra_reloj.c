@@ -422,7 +422,7 @@ void mostrar_juego(juego_t juego){
 	inicializar_matriz(tablero);
 	cargar_posiciones_visibles(tablero, juego);
 
-	mostrar_datos(juego.cantidad_obstaculos, juego.cantidad_herramientas, juego.personaje.cantidad_elementos);
+	mostrar_titulo();
 	mostrar_matriz(tablero);
 
 }
@@ -557,7 +557,6 @@ void mover_hacia(juego_t* juego, coordenada_t posicion, char direccion){
 			
 			tipo_chocado = tipo_elemento_chocado(*juego, posicion);
 
-			printf("Tipo CHOCADO: %c", tipo_chocado);
 			chocar_con(juego, tipo_chocado, posicion);	
 		}
 		
@@ -619,16 +618,11 @@ void chocar_con(juego_t* juego, char tipo_chocado, coordenada_t posicion_persona
 		aplicar_contratiempo(juego, tipo_chocado);
 
 	} else if (es_herramienta(tipo_chocado)) {
-		agregar_en_mochila(juego->personaje.mochila,&(juego->personaje.cantidad_elementos), tipo_chocado);
-	
 		indice_chocado = indice_herramienta(juego->herramientas, juego->cantidad_herramientas, posicion_personaje);
-
-		//printf("Indice chocado: %i\n", indice_chocado);		
-		//printf("Cantidad de obstaculos dps de chocado: %i\n", juego->cantidad_obstaculos);
-
-		eliminar_herramienta(juego->herramientas, &(juego->cantidad_herramientas),indice_chocado);
 		
-		//printf("Cantidad de obstaculos dps de eliminar_herramienta: %i\n", juego->cantidad_obstaculos);		
+		agregar_en_mochila(juego->personaje.mochila,&(juego->personaje.cantidad_elementos), tipo_chocado);
+		eliminar_herramienta(juego->herramientas, &(juego->cantidad_herramientas),indice_chocado);
+			
 	}
 }
 
@@ -876,8 +870,6 @@ void agregar_en_mochila (elemento_mochila_t mochila[MAX_HERRAMIENTAS], int* cant
 
 		(*cantidad_herramientas)++;
 	}
-
-	printf("Herramienta agregada %c con %i movimientos", mochila[(*cantidad_herramientas)-1].tipo, mochila[(*cantidad_herramientas)-1].movimientos_restantes);
 }
 
 
@@ -904,8 +896,7 @@ void intentar_iluminar_con(juego_t* juego, char herramienta, int indice_herramie
 		iluminar_con(juego,herramienta);
 
 		juego->personaje.mochila[indice_herramienta].movimientos_restantes--;
-		//printf("Movimientos restantes de %c : %i indice en uso: %i \n", juego->personaje.mochila[indice_herramienta].tipo, juego->personaje.mochila[indice_herramienta].movimientos_restantes, indice_herramienta );
-	
+
 	} else{
 		ocultar_todo(juego);
 		juego->personaje.elemento_en_uso = SIN_ELEMENTOS_EN_USO;
@@ -993,14 +984,14 @@ void iluminar_hacia_arriba(juego_t* juego){
 	for (i = 0; i < juego->cantidad_obstaculos; i++){
 		if (esta_arriba_de(juego->personaje.posicion, juego->obstaculos[i].posicion )){
 			juego->obstaculos[i].visible = true;
-			//printf("Se ilumina fil: %i y col: %i\n",juego->obstaculos[i].posicion.fil, juego-> obstaculos[i].posicion.col);
+
 		}
 	}
 	
 	for (i = 0; i < juego->cantidad_herramientas; i++){
 		if (esta_arriba_de(juego->personaje.posicion, juego->herramientas[i].posicion )){
 			juego->herramientas[i].visible = true;
-			//printf("Se ilumina fil: %i y col: %i\n",juego->herramientas[i].posicion.fil, juego-> herramientas[i].posicion.col);
+
 		}
 	}
 }
@@ -1028,14 +1019,12 @@ void iluminar_hacia_abajo(juego_t* juego){
 	for (i = 0; i < juego->cantidad_obstaculos; i++){
 		if (esta_abajo_de(juego->personaje.posicion, juego->obstaculos[i].posicion )){
 			juego->obstaculos[i].visible = true;
-			//printf("Se ilumina fil: %i y col: %i\n",juego->obstaculos[i].posicion.fil, juego-> obstaculos[i].posicion.col);
 		}
 	}
 	
 	for (i = 0; i < juego->cantidad_herramientas; i++){
 		if (esta_abajo_de(juego->personaje.posicion, juego->herramientas[i].posicion )){
 			juego->herramientas[i].visible = true;
-				//printf("Se ilumina fil: %i y col: %i\n",juego->herramientas[i].posicion.fil, juego-> herramientas[i].posicion.col);
 		}
 	}
 }
@@ -1066,7 +1055,6 @@ void iluminar_hacia_izquierda(juego_t* juego){
 
 		if (esta_izquierda_de(juego->personaje.posicion, juego->obstaculos[i].posicion)){
 			juego->obstaculos[i].visible = true;
-			//printf("Se ilumina fil: %i y col: %i\n",posicion_elemento.fil, posicion_elemento.col);
 		}
 	}
 	
@@ -1074,7 +1062,6 @@ void iluminar_hacia_izquierda(juego_t* juego){
 		
 		if (esta_izquierda_de(juego->personaje.posicion, juego->herramientas[i].posicion)){
 			juego->herramientas[i].visible = true;
-			//printf("Se ilumina fil: %i y col: %i\n",posicion_elemento.fil, posicion_elemento.col);
 		}
 	}
 }
@@ -1103,14 +1090,12 @@ void iluminar_hacia_derecha(juego_t* juego){
 	for (i = 0; i < (juego->cantidad_obstaculos); i++){
 		if (esta_derecha_de(juego->personaje.posicion, juego->obstaculos[i].posicion )){
 			juego->obstaculos[i].visible = true;
-				//printf("Se ilumina fil: %i y col: %i\n",juego->obstaculos[i].posicion.fil, juego-> obstaculos[i].posicion.col);
 		}
 	}
 	
 	for (i = 0; i < (juego->cantidad_herramientas); i++){
 		if (esta_derecha_de(juego->personaje.posicion, juego->herramientas[i].posicion )){
 			juego->herramientas[i].visible = true;
-			//printf("Se ilumina fil: %i y col: %i\n",juego->herramientas[i].posicion.fil, juego-> herramientas[i].posicion.col);
 		}
 	}
 }
@@ -1139,14 +1124,12 @@ void iluminar_alrededor(juego_t* juego){
 	for (i = 0; i < juego->cantidad_obstaculos; i++){
 		if (esta_alrededor(juego->personaje.posicion, juego->obstaculos[i].posicion )){
 			juego->obstaculos[i].visible = true;
-			//printf("Se ilumina fil: %i y col: %i\n",juego->obstaculos[i].posicion.fil, juego-> obstaculos[i].posicion.col);
 		}
 	}
 	
 	for (i = 0; i < juego->cantidad_herramientas; i++){
 		if (esta_alrededor(juego->personaje.posicion, juego->herramientas[i].posicion )){
 			juego->herramientas[i].visible = true;
-			//printf("Se ilumina fil: %i y col: %i\n",juego->herramientas[i].posicion.fil, juego-> herramientas[i].posicion.col);
 		}
 	}
 }
@@ -1213,14 +1196,12 @@ void iluminar_con_bengala(juego_t* juego){
 	for (i = 0; i < juego->cantidad_obstaculos; i++){
 		if (distancia_mahattan(posicion_bengala, juego->obstaculos[i].posicion ) <= MAX_RANGO_BENGALA){
 			juego->obstaculos[i].visible = true;
-			//printf("Se ilumina fil: %i y col: %i\n",juego->obstaculos[i].posicion.fil, juego-> obstaculos[i].posicion.col);
 		}
 	}
 	
 	for (i = 0; i < juego->cantidad_herramientas; i++){
 		if (distancia_mahattan(posicion_bengala, juego->herramientas[i].posicion ) <=MAX_RANGO_BENGALA){
 			juego->herramientas[i].visible = true;
-			//printf("Se ilumina fil: %i y col: %i\n",juego->herramientas[i].posicion.fil, juego-> herramientas[i].posicion.col);
 		}
 	}
 }
